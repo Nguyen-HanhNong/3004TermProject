@@ -18,7 +18,7 @@ public:
     Reader(); // Default constructor
 
     /* Functions to generate data points */
-    static void generateNormalDataPoint(int multiplierValue = 20, double periodValue = 5.0, int heightValue = 80); 
+    static void generateNormalDataPoint(double multiplierValue = 20.0, double periodValue = 5.0, int heightValue = 80); 
     static void generateWeirdDataPoint(int adjustmentValue = 0); //function to generate the incoherent heart rate data points
 
     /* Function to read the incoherent heart rate data from a file */

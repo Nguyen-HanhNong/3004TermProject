@@ -17,7 +17,7 @@ Reader::Reader()
 }
 
 /* This function is used to generate a data point that is simulating a coherent heart rate. */
-void Reader::generateNormalDataPoint(int multiplierValue, double periodValue, int heightValue) {
+void Reader::generateNormalDataPoint(double multiplierValue, double periodValue, int heightValue) {
   /* Generate a new data point starting at 65 if the timeDataPoints vector is empty. */
   if(timeDataPoints.size() == 0) {
     timeDataPoints.push_back(1);
