@@ -28,10 +28,6 @@ QString Log::toString() {
     return newString;
 }
 
-void Log::createGraph() {
-
-}
-
 // getters
 int Log::getLogNum() { return logNum; }
 int Log::getChallengeLevel() { return challengeLevel; }
