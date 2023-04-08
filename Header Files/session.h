@@ -1,10 +1,15 @@
-#ifndef SESSION_H
-#define SESSION_H
-
 #include <QString>
 #include <QDateTime>
 #include <QTime>
+#include <QVector>
 #include <QTimer>
+#include <QObject>
+#include <QWidget>
+
+#include "qcustomplot.h"
+
+#ifndef SESSION_H
+#define SESSION_H
 
 /* Purpose of Class: To serve as the active object being updated while a session is running
  *
@@ -22,14 +27,15 @@
  *
  */
 
-class Session {
+class Session: public QWidget {
 
 public:
-    Session(const int challengeLevel);
+    Session(QWidget* = nullptr);
+    ~Session();
 
     QString toString();
 
-    double calculateCoherence();
+    double calculateCoherence(QVector<double> hrvData, QVector<double> timeData);
     void update();
     void stop();
     void end();
@@ -55,6 +61,8 @@ private:
     double achievement;
     QTimer timer;
     QVector<double> coherenceScores;
+    QVector<double> hrvData;
+    QVector<double> timeData;
     //Reader reader;
 };
 
