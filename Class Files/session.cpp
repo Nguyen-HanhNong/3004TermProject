@@ -1,14 +1,20 @@
 #include "session.h"
 
-Session::Session(const int challengeLeveL) {
+Session::Session(QWidget* p): QWidget(p) {
     this->challengeLevel = challengeLevel;
     this->length = 0;
     this->achievement = 0;
     this->currentCoherence = 0;
     this->coherenceScores = QVector<double>();
+    this->hrvData = QVector<double>();
+    this->timeData = QVector<double>();
     timer.setInterval(5000);
-    connect(&timer, &QTimer::timeout, this, &Session::onTimerTimeout);
+    QObject::connect(&timer, &QTimer::timeout, this, &Session::onTimerTimeout);
     timer.start();
+}
+
+Session::~Session() {
+
 }
 
 double Session::calculateCoherence(QVector<double> hrvData, QVector<double> timeData) {
@@ -45,7 +51,7 @@ double Session::calculateCoherence(QVector<double> hrvData, QVector<double> time
 
 void Session::update() {
     //Calculate current coherence
-    this->currentCoherence = calculateCoherence();
+    this->currentCoherence = calculateCoherence(this->hrvData, this->timeData);
     //Add currentCoherence to achievement
     this->achievement += this->currentCoherence;
     //Increment length variable by time elapsed
@@ -72,8 +78,8 @@ void Session::onTimerTimeout() {
 
 QString Session::toString() {
     QString newString =
-            "CURRENT SESSION" + "\n"
-            + "   Challenge Level: " + QString::number(challengeLevel) + "\n"
+            "CURRENT SESSION\n   Challenge Level: "
+            + QString::number(challengeLevel) + "\n"
             + "   Length of Session(in seconds): " + QString::number(length) + "\n"
             + "   Achievement: " + QString::number(achievement) + "\n";
 
