@@ -30,7 +30,7 @@ private:
     Menu* parentMenu;
 
     QListWidget *curQListWidget;
-    void updateMenu(const QString, const QStringList);
+    void updateMenu(const QString, QVector<QString>);
     void initializeMainMenu(Menu*);
 
     //challenge level

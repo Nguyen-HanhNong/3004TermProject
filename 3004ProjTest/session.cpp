@@ -1,8 +1,12 @@
 #include "session.h"
 
+int Session::uniqueSessionID = 1;
+
 Session::Session(QWidget* p, int challengeLevel): QWidget(p), challengeLevel(challengeLevel), length(0), reader(Reader()) 
 {
-    timeCreated = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
+    this->timeCreated = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
+    this->sessionID = uniqueSessionID;
+    uniqueSessionID++;
 }
 
 Session::~Session() {
@@ -86,4 +90,8 @@ QString Session::getCoherenceLevel() {
 
 QString Session::getDateCreated() {
     return timeCreated;
+}
+
+int Session::getSessionID() {
+    return sessionID;
 }

@@ -55,10 +55,15 @@ public:
     QString getCoherenceLevel();
     QString getDateCreated();
 
+    int getSessionID();
+
 private:
     int challengeLevel;
     int length;
     double achievement;
+
+    static int uniqueSessionID;
+    int sessionID;
 
     double averageCoherenceScore;
     double percentageOfHighCoherence;

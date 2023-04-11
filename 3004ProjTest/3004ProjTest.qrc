@@ -5,6 +5,5 @@
         <file>high_coherence_scores.txt</file>
         <file>low_coherence_scores.txt</file>
         <file>medium_coherence_scores.txt</file>
-        <file>beep_sound_effect.wav</file>
     </qresource>
 </RCC>

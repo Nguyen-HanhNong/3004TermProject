@@ -9,10 +9,10 @@
 class Menu
 {
 public:
-    explicit Menu(QString, QStringList, Menu*);
+    explicit Menu(QString, QVector<QString> itemList, Menu*);
     ~Menu();
     QString getName();
-    QStringList getMenuItems();
+    QVector<QString> getMenuItems();
     Menu* getParentMenu();
     int getPosition();
     Menu* get(int);
@@ -22,11 +22,11 @@ public:
     QVector<Menu*> getChildMenus();
     void addNewMenuItem(QString item);
 
-    void removeMenuItem(QString removedElement);
+    void removeMenuItem(int removeIndex);
 
 private:
     QString menuName;
-    QStringList menuItems;
+    QVector<QString> menuItems;
     int position;
     QVector<Menu*> childMenus;
     Menu* parent;

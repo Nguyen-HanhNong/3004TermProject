@@ -1,8 +1,8 @@
 #include "menu.h"
 
-Menu::Menu(QString name, QStringList itemList, Menu* parentMenu)
+Menu::Menu(QString name, QVector<QString> itemList, Menu* parentMenu)
 {
-    menuName = name;
+    menuName = name; 
     menuItems = itemList;
     parent = parentMenu;
     length = 0;
@@ -23,7 +23,7 @@ QString Menu::getName(){
     return this->menuName;
 }
 
-QStringList Menu::getMenuItems(){
+QVector<QString> Menu::getMenuItems(){
     return this->menuItems;
 }
 
@@ -49,20 +49,16 @@ QVector<Menu*> Menu::getChildMenus(){
 
 void Menu::addNewMenuItem(QString item){
     menuItems.push_back(item);
-
-    qDebug("size of menuItems: %d", menuItems.length());
-    qDebug("What are all elements inside menuItems: %s", menuItems.join(" ").toStdString().c_str());
 }
 
-void Menu::removeMenuItem(QString removedElement){
-    //none of thsi works for some reason
-    // qDebug("size of menuItems: %d", menuItems.length());
-    // qDebug("made it past first lenght call");
+void Menu::removeMenuItem(int removeIndex){
+    QVector<QString> newMenuItems = QVector<QString>();
+    
+    for(int i = 0; i<menuItems.length(); i++){
+        if(i != removeIndex){
+            newMenuItems.push_back(menuItems[i]);
+        }
+    }
 
-    // for (int index = 0; index < menuItems.length(); index++)  {
-    //     if (menuItems[index] == removedElement){
-    //         menuItems.removeAt(index);
-    //         return;
-    //     }
-    // }
+    menuItems = newMenuItems;
 }

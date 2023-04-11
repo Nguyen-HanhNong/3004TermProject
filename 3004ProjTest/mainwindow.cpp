@@ -25,7 +25,12 @@ MainWindow::MainWindow(QWidget *parent)
 
     //main menu view initialization
     curQListWidget = ui->mainListView;
-    curQListWidget->addItems(mainMenu->getMenuItems());
+    //curQListWidget->addItems(mainMenu->getMenuItems());
+
+    for(int i = 0; i<mainMenu->getLength(); i++){
+        curQListWidget->addItem(mainMenu->get(i)->getName());
+    }
+
     curQListWidget->setCurrentRow(0);
     ui->menuLabel->setText(mainMenu->getName());
 
@@ -153,12 +158,17 @@ void MainWindow::select(){
     }
 }
 
-void MainWindow::updateMenu(const QString child, const QStringList childItems){
+void MainWindow::updateMenu(const QString child, QVector<QString> childItems){
     //need to end session here somewhere
     //ui->breathPacerLights->stop();
 
     curQListWidget->clear();
-    curQListWidget->addItems(childItems);
+    //curQListWidget->addItems(childItems);
+
+    for(int i = 0; i < childItems.length(); i++) {
+        curQListWidget->addItem(childItems.at(i));
+    }
+
     curQListWidget->setCurrentRow(0);
 
     ui->menuLabel->setText(child);
@@ -222,7 +232,7 @@ void MainWindow::viewLog(int curr){
     ui->backButton->setVisible(true);
 
     ui->sessionScreen->setVisible(true);
-    ui->menuLabel->setText("Log Screen: Session " + QString::number(curr + 1));
+    ui->menuLabel->setText("Log Screen: Session " + QString::number(sessions->at(curr)->getSessionID()));
 
     ui->breathPacerLights->setVisible(false);
     ui->coherenceLight->setVisible(false);
@@ -336,11 +346,16 @@ void MainWindow::addNewSession() {
     sessions->push_back(new Session(nullptr, this->nextChallengeLevel));
     MainWindow::currentSession += 1;
 
-    mainMenu->getChildMenus()[1]->addNewMenuItem("Session " + QString::number(currentSession + 1));
+    qDebug("what is current session? %d", currentSession);
+
+    mainMenu->getChildMenus()[1]->addNewMenuItem("Session " + QString::number(sessions->at(currentSession)->getSessionID()));
 }
 
 //SESSION FUNCTIONS
 void MainWindow::startSession(){
+    
+    addNewSession();
+
     //visuals
     ui->mainListView->setVisible(false);
     ui->selectorButtons->setDisabled(true);
@@ -351,11 +366,8 @@ void MainWindow::startSession(){
     ui->backButton->setDisabled(true);
 
     ui->sessionScreen->setVisible(true);
-    ui->menuLabel->setText("Session");
+    ui->menuLabel->setText("Session" + QString::number(sessions->at(currentSession)->getSessionID()));
 
-    qInfo("Session starting...");
-
-    addNewSession();
     *(this->updateSessionGraph) = true;
 
     //session mechanisms
@@ -386,7 +398,7 @@ void MainWindow::endSession(){
     ui->backButton->setDisabled(true);
 
     ui->sessionScreen->setVisible(true);
-    ui->menuLabel->setText("Summary Screen: Session " + QString::number(currentSession + 1) + " Ended"); 
+    ui->menuLabel->setText("Summary Screen: Session " + QString::number(sessions->at(currentSession)->getSessionID()) + " Ended"); 
 
     ui->breathPacerLights->stop();
 
@@ -424,24 +436,6 @@ void MainWindow::deleteSession() {
     int deleteSessionIndex = curQListWidget->currentRow();
     if(deleteSessionIndex < 0){return ;}
 
-    sessions->erase(sessions->begin() + deleteSessionIndex);
-    currentSession -= 1;
-
-    qDebug("what is left in the sessions vector? %d", sessions->size());
-
-    QString sessionName = "Session " + QString::number(deleteSessionIndex + 1);
-
-    //qDebug("made it here 4");
-    qDebug("What is the session index? %d", deleteSessionIndex);
-    // qDebug("size of menus stringlist %d", mainMenu->getChildMenus()[1]->getMenuItems().size());
-
-    qDebug("made it here 6");
-
-    mainMenu->getChildMenus()[1]->removeMenuItem(sessionName);
-    //MainWindow::updateMenu(mainMenu->getName(), mainMenu->getMenuItems());
-
-    qDebug("made it here 5");
-
     ui->mainListView->setVisible(true);
     ui->selectorButtons->setDisabled(false);
     ui->selectButton->setText("Select");
@@ -452,4 +446,9 @@ void MainWindow::deleteSession() {
     ui->sessionScreen->setVisible(false);
 
     menu();
+
+    mainMenu->getChildMenus()[1]->removeMenuItem(deleteSessionIndex);
+
+    sessions->erase(sessions->begin() + deleteSessionIndex);
+    currentSession -= 1;
 }
