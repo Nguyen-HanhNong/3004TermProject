@@ -263,19 +263,6 @@
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Average Coherence Score:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="coherenceLight">
-     <property name="geometry">
-      <rect>
-       <x>600</x>
-       <y>20</y>
-       <width>80</width>
-       <height>25</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-    </widget>
     <widget class="QLabel" name="dateLabel">
      <property name="geometry">
       <rect>
@@ -300,6 +287,16 @@
      </property>
      <property name="text">
       <string>Delete Session</string>
+     </property>
+    </widget>
+    <widget class="LED" name="coherenceLight" native="true">
+     <property name="geometry">
+      <rect>
+       <x>300</x>
+       <y>20</y>
+       <width>101</width>
+       <height>31</height>
+      </rect>
      </property>
     </widget>
    </widget>

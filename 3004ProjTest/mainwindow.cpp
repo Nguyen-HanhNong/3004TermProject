@@ -68,7 +68,8 @@ MainWindow::MainWindow(QWidget *parent)
     QLabel *achievementLabel = ui->achievementScoreLabel;
     QVector<Session* >* sessions = this->sessions;
     bool* willUpdate = this->updateSessionGraph;
-    QPushButton* coherenceLevelLight = ui->coherenceLight;
+    LED* coherenceLevelLight = ui->coherenceLight;
+    ui->coherenceLight->turnOn();
 
     //session screen slots
     connect(this->plottingTimer, &QTimer::timeout, this, [=]()
@@ -332,7 +333,7 @@ void MainWindow::updateSliderText(){
 }
 
 
-void MainWindow::plotDataPoints(QWidget* mainWidget, QCustomPlot *graphWidget, QLabel* coherenceScoreLabel, QLabel* lengthLabel, QLabel* achievementLabel, QVector<Session *>* sessionsVector, bool* updateSessionGraph, QPushButton* coherenceLight) {
+void MainWindow::plotDataPoints(QWidget* mainWidget, QCustomPlot *graphWidget, QLabel* coherenceScoreLabel, QLabel* lengthLabel, QLabel* achievementLabel, QVector<Session *>* sessionsVector, bool* updateSessionGraph, LED* coherenceLight) {
     //if there are no sessions or the main widget is not visible, return
     if(currentSession == -1 || mainWidget->isVisible() == false || *updateSessionGraph == false) {
         return;
@@ -346,13 +347,13 @@ void MainWindow::plotDataPoints(QWidget* mainWidget, QCustomPlot *graphWidget, Q
     }
 
     if(sessionsVector->at(currentSession)->getCoherenceLevel() == "Low") {
-        coherenceLight->setStyleSheet("background-color: red");
+        coherenceLight->setColour(QColor("red"));
     }
     else if(sessionsVector->at(currentSession)->getCoherenceLevel() == "Medium") {
-        coherenceLight->setStyleSheet("background-color: blue");
+        coherenceLight->setColour(QColor("blue"));
     }
     else if(sessionsVector->at(currentSession)->getCoherenceLevel() == "High") {
-        coherenceLight->setStyleSheet("background-color: green");
+        coherenceLight->setColour(QColor("green"));
     }
 
     lengthLabel->setText("Length (in seconds): \n" + QString::number(sessionsVector->at(currentSession)->getLength()));
@@ -429,7 +430,7 @@ void MainWindow::startSession(){
 
     ui->coherenceLight->setEnabled(false);
     ui->coherenceLight->setVisible(true);
-    ui->coherenceLight->setStyleSheet("background-color: green");
+    ui->coherenceLight->setColour(QColor("green"));
 }
 
 void MainWindow::endSession(){
