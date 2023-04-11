@@ -1,6 +1,6 @@
 #include "session.h"
 
-Session::Session(QWidget* p): QWidget(p) {
+Session::Session(int challengeLevel, QWidget* p): QWidget(p) {
     this->challengeLevel = challengeLevel;
     this->length = 0;
     this->achievement = 0;

@@ -30,7 +30,7 @@
 class Session: public QWidget {
 
 public:
-    Session(QWidget* = nullptr);
+    Session(int challengeLevel, QWidget* = nullptr);
     ~Session();
 
     QString toString();
