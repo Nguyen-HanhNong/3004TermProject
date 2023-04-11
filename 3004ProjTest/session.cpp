@@ -42,13 +42,6 @@ void Session::calculateSummaryData() {
         percentageOfLowCoherence = (getTimeAtLow() / length) * 100;
     }
     
-    qDebug("Average Coherence Score: %f", averageCoherenceScore);
-    qDebug("Percentage of High Coherence: %f", percentageOfHighCoherence);
-    qDebug("Percentage of Medium Coherence: %f", percentageOfMediumCoherence);
-    qDebug("Percentage of Low Coherence: %f", percentageOfLowCoherence);
-
-    qDebug("Vector of time spent in each coherence level: %f, %f, %f", getTimeAtHigh(), getTimeAtMedium(), getTimeAtLow());
-
     return;
 }
 
@@ -85,7 +78,7 @@ double Session::getPercentageOfMediumCoherence() { return percentageOfMediumCohe
 double Session::getPercentageOfLowCoherence() { return percentageOfLowCoherence; }
 
 QString Session::getCoherenceLevel() {
-    return reader.getCoherenceLevel();
+    return reader.getCoherenceLevel(this->challengeLevel);
 }
 
 QString Session::getDateCreated() {

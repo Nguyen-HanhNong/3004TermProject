@@ -310,14 +310,56 @@ int Reader::getNumberOfAchievementUpdates() {
   return numberOfAchievementUpdates;
 }
 
-QString Reader::getCoherenceLevel() {
-  if(switchBetweenCoherence <= 60) {
-    return "High";
-  }
-  else if(switchBetweenCoherence > 60 && switchBetweenCoherence <= 120) {
-    return "Medium";
-  }
-  else {
-    return "Low";
-  }
+QString Reader::getCoherenceLevel(int challengeLevel) {
+  switch (challengeLevel) {
+    case 1:
+      if(latestCoherenceScore < 0.5) {
+        return "Low";
+      }
+      else if(latestCoherenceScore >= 0.5 && latestCoherenceScore <= 0.9) {
+        return "Medium";
+      }
+      else if(latestCoherenceScore > 0.9) {
+        return "High";
+      }
+      break;
+    case 2:
+      if(latestCoherenceScore < 0.6) {
+        return "Low";
+      }
+      else if(latestCoherenceScore >= 0.6 && latestCoherenceScore <= 2.1) {
+        return "Medium";
+      }
+      else if(latestCoherenceScore > 2.1) {
+        return "High";
+      }
+      break;
+    case 3:
+      if(latestCoherenceScore < 1.8) {
+        return "Low";
+      }
+      else if(latestCoherenceScore >= 1.8 && latestCoherenceScore <= 4.0) {
+        return "Medium";
+      }
+      else if(latestCoherenceScore > 4.0) {
+        return "High";
+      }
+      break;
+    case 4:
+      if(latestCoherenceScore < 4.0) {
+        return "Low";
+      }
+      else if(latestCoherenceScore >= 4.0 && latestCoherenceScore <= 6.0) {
+        return "Medium";
+      }
+      else if(latestCoherenceScore > 6.0) {
+        return "High";
+      }
+      break;
+    default:
+      qDebug() << "Error: Invalid challenge level. The program will now exit";
+      exit(1);
+    }
+
+    return "Error";
 }

@@ -200,19 +200,19 @@ void MainWindow::goBack(){
 //CHALLENGE LEVELS FUNCTIONS
 void MainWindow::setChallengeLevel(int curr){
     if(mainMenu->getMenuItems()[curr] == "1"){
-        qInfo("Challenge level set to 1");
         this->nextChallengeLevel = 1;
+        menu();
     } else if(mainMenu->getMenuItems()[curr] == "2"){
-        qInfo("Challenge level set to 2");
         this->nextChallengeLevel = 2;
+        menu();
     } else if(mainMenu->getMenuItems()[curr] == "3"){
-        qInfo("Challenge level set to 3");
         this->nextChallengeLevel = 3;
+        menu();
     } else if(mainMenu->getMenuItems()[curr] == "4"){
-        qInfo("Challenge level set to 4");
         this->nextChallengeLevel = 4;
+        menu();
     } else {
-        qInfo("ERROR. The challenge level should not be set to this value. The program will now exit.");
+        qDebug("ERROR. The challenge level should not be set to this value. The program will now exit.");
         exit(1);
     }
 }
@@ -233,6 +233,10 @@ void MainWindow::resetDevice(){
 
     updateMenu(mainMenu->getName(), mainMenu->getMenuItems());
 
+    /* Set the challenge level, current session index and updateSessionGraph booelan back to their default values */
+    this->nextChallengeLevel = 1;
+    currentSession = -1;
+    *(this->updateSessionGraph) = false;
 }
 
 //LOG FUNCTIONS

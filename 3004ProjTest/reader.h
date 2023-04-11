@@ -51,7 +51,7 @@ public:
     QVector<double> getTimeInEachCoherence(); //returns the timeInEachCoherence vector
     int getNumberOfAchievementUpdates(); //returns the numberOfAchievementUpdates integer
 
-    QString getCoherenceLevel(); //returns the coherence level
+    QString getCoherenceLevel(int challengeLevel = 1); //returns the coherence level
 
 private:
 
