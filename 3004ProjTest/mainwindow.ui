@@ -63,7 +63,7 @@
      <string>MENU</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton_3">
+   <widget class="QPushButton" name="powerButton">
     <property name="geometry">
      <rect>
       <x>60</x>
@@ -76,11 +76,11 @@
      <string>ON/OFF</string>
     </property>
    </widget>
-   <widget class="Battery" name="widget" native="true">
+   <widget class="Battery" name="battery" native="true">
     <property name="geometry">
      <rect>
       <x>40</x>
-      <y>120</y>
+      <y>150</y>
       <width>120</width>
       <height>291</height>
      </rect>
@@ -308,7 +308,7 @@
      <rect>
       <x>960</x>
       <y>260</y>
-      <width>331</width>
+      <width>341</width>
       <height>181</height>
      </rect>
     </property>
@@ -378,16 +378,41 @@
      <string>SELECT</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="hrvSignalButton">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>100</y>
+      <width>80</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>HRV Signal</string>
+    </property>
+   </widget>
+   <widget class="LED" name="signalLight" native="true">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>100</y>
+      <width>21</width>
+      <height>21</height>
+     </rect>
+    </property>
+   </widget>
    <zorder>selectorButtons</zorder>
    <zorder>breathPacersetting</zorder>
    <zorder>menuLabel</zorder>
    <zorder>mainListView</zorder>
    <zorder>backButton</zorder>
    <zorder>menuButton</zorder>
-   <zorder>pushButton_3</zorder>
-   <zorder>widget</zorder>
+   <zorder>powerButton</zorder>
+   <zorder>battery</zorder>
    <zorder>sessionScreen</zorder>
    <zorder>selectButton</zorder>
+   <zorder>hrvSignalButton</zorder>
+   <zorder>signalLight</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -395,7 +420,7 @@
      <x>0</x>
      <y>0</y>
      <width>1306</width>
-     <height>32</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>
@@ -418,6 +443,12 @@
    <class>QCustomPlot</class>
    <extends>QWidget</extends>
    <header>qcustomplot.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>LED</class>
+   <extends>QWidget</extends>
+   <header>led.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

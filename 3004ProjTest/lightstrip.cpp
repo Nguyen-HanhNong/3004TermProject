@@ -22,16 +22,21 @@ LightStrip::~LightStrip(){
 }
 
 void LightStrip::start(){
+    //Do nothing if already running
+    if(curOn != 0) return;
+
     lights[0]->turnOn();
     curOn++;
     timer.start(interval/4);
 }
 
 void LightStrip::stop(){
+    //Do nothing if not running
+    if(curOn == 0) return;
+
     timer.stop();
     lights[curOn-1]->turnOff();
     curOn = 0;
-    qInfo("Session stopped");
 }
 
 void LightStrip::nextLight(){

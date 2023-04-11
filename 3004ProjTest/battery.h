@@ -14,6 +14,8 @@ public:
     Battery(QWidget *parent = nullptr);
 
     int getBattery(){return percent;}
+    void stopBattery();
+    void startBattery();
 
 signals:
     //Used to indicate that the device has no charge left and should not function

@@ -7,7 +7,7 @@ int MainWindow::currentSession = -1;
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+    , ui(new Ui::MainWindow), activeSession(false), on(true), hasSignal(true)
 {
     ui->setupUi(this);
 
@@ -44,6 +44,15 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->leftButton, &QPushButton::pressed, this, &MainWindow::moveBPSliderLeft);
     connect(ui->rightButton, &QPushButton::pressed, this, &MainWindow::moveBPSliderRight);
     connect(ui->breathSlider, &QSlider::valueChanged, this, &MainWindow::updateSliderText);
+
+    connect(ui->hrvSignalButton, &QPushButton::pressed, this, &MainWindow::changeSignal);
+    ui->signalLight->setColour(QColor("green"));
+    ui->signalLight->turnOn();
+    connect(ui->powerButton, &QPushButton::pressed, this, &MainWindow::powerButton);
+
+    //battery slots
+    connect(ui->battery, &Battery::batteryDrained, this, &MainWindow::batteryDead);
+    connect(ui->battery, &Battery::batteryCharged, this, &MainWindow::batteryCharged);
 
     //setup timer and other session related stuff
     this->plottingTimer = new QTimer(this);
@@ -386,9 +395,12 @@ void MainWindow::addNewSession() {
 
 //SESSION FUNCTIONS
 void MainWindow::startSession(){
-
+    if(!hasSignal){
+        qDebug()<<"Needs active signal to start session!";
+        return;
+    }
     addNewSession();
-
+    activeSession = true;
     //visuals
     ui->mainListView->setVisible(false);
     ui->selectorButtons->setDisabled(true);
@@ -422,29 +434,30 @@ void MainWindow::startSession(){
 
 void MainWindow::endSession(){
     *(this->updateSessionGraph) = false;
-
+    activeSession = false;
+    qDebug()<<1;
     ui->mainListView->setVisible(false);
     ui->selectorButtons->setDisabled(true);
     ui->selectButton->setDisabled(false);
     ui->selectButton->setText("Return To Menu");
-
+    qDebug()<<2;
     ui->menuButton->setDisabled(true);
     ui->backButton->setDisabled(true);
 
     ui->sessionScreen->setVisible(true);
     ui->menuLabel->setText("Summary Screen: Session " + QString::number(sessions->at(currentSession)->getSessionID()) + " Ended");
-
+    qDebug()<<3;
     ui->breathPacerLights->stop();
-
+    qDebug()<<3.1;
     this->sessions->at(currentSession)->calculateSummaryData();
-
+    qDebug()<<3.5;
     ui->averageCoherenceScoreLabel->setVisible(true);
     ui->percentHighLabel->setVisible(true);
     ui->percentMediumLabel->setVisible(true);
     ui->percentLowLabel->setVisible(true);
     ui->dateLabel->setVisible(false);
     ui->deleteSessionButton->setVisible(false);
-
+    qDebug()<<4;
     ui->coherenceScoreLabel->setText("Coherence Score: " + QString::number(sessions->at(currentSession)->getCurrentCoherence()));
     ui->lengthLabel->setText("Length (in seconds): \n" + QString::number(sessions->at(currentSession)->getLength()));
     ui->achievementScoreLabel->setText("Achievement Score: " + QString::number(sessions->at(currentSession)->getAchievement()));
@@ -486,3 +499,74 @@ void MainWindow::deleteSession() {
     sessions->erase(sessions->begin() + deleteSessionIndex);
     currentSession -= 1;
 }
+
+void MainWindow::batteryDead(){
+   turnOff();
+}
+
+void MainWindow::batteryCharged(){
+    turnOn();
+}
+
+void MainWindow::changeSignal(){
+    //Switching the signal
+    hasSignal = !hasSignal;
+
+    if(!hasSignal){
+        if(activeSession){
+            //Pause session if signal is lost
+            *(this->updateSessionGraph) = false;
+            ui->breathPacerLights->stop();
+        }
+        ui->signalLight->setColour(QColor("red"));
+    }
+    else{
+        if(activeSession){
+            //resume session if signal is regained
+            *(this->updateSessionGraph) = true;
+            ui->breathPacerLights->start();
+        }
+        ui->signalLight->setColour(QColor("green"));
+    }
+}
+
+void MainWindow::turnOn(){
+    on = true;
+    //Enabling all the device buttons
+    ui->mainListView->setEnabled(true);
+    ui->selectButton->setEnabled(true);
+    ui->selectorButtons->setEnabled(true);
+    ui->menuButton->setEnabled(true);
+    ui->backButton->setEnabled(true);
+    ui->sessionScreen->setEnabled(true);
+    ui->mainListView->setVisible(true);
+
+    //Draining battery
+    ui->battery->startBattery();
+}
+
+void MainWindow::turnOff(){
+    on = false;
+    //Ending session if one is active
+    if(activeSession){
+        activeSession = false;
+        ui->sessionScreen->setEnabled(false);
+        endSession();
+    }
+    returnToMenu();
+    //Disabling the buttons and screen
+    ui->mainListView->setEnabled(false);
+    ui->selectButton->setEnabled(false);
+    ui->selectorButtons->setEnabled(false);
+    ui->menuButton->setEnabled(false);
+    ui->backButton->setEnabled(false);
+
+    ui->mainListView->setVisible(false);
+    ui->battery->stopBattery();
+}
+
+void MainWindow::powerButton(){
+    if(!on) turnOn();
+    else turnOff();
+}
+

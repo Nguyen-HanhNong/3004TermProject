@@ -12,7 +12,7 @@ class LED: public QWidget
     Q_PROPERTY(bool on READ isOn WRITE setOn)
 public:
     //Default colour of yellow when on, gray when off
-    LED(const QColor = QColor(255, 255, 0), const QColor = QColor(137, 137, 137), QWidget* = nullptr);
+    LED(QWidget* = nullptr, const QColor = QColor(255, 255, 0), const QColor = QColor(137, 137, 137));
 
     //Getters & Setters
     bool isOn(){return on;}

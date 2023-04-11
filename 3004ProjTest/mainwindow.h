@@ -54,6 +54,9 @@ private:
     int nextChallengeLevel;
     QTimer *plottingTimer;
     bool *updateSessionGraph;
+    bool activeSession;
+    bool on;
+    bool hasSignal;
 
     void addNewSession();
     void startSession();
@@ -61,12 +64,24 @@ private:
     void returnToMenu();
     void deleteSession();
 
+    void turnOn();
+    void turnOff();
+
 private slots:
     void upButton();
     void downButton();
     void select();
     void menu();
     void goBack();
+
+    void changeSignal();
+
+    //Battery slots
+    void batteryDead();
+    void batteryCharged();
+
+    //Turning on/off
+    void powerButton();
 
 };
 #endif // MAINWINDOW_H

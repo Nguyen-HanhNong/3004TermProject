@@ -14,17 +14,26 @@ Battery::Battery(QWidget *p) : QWidget(p), percent(100)
     //Connecting slots
     QObject::connect(&timer, &QTimer::timeout, this, &Battery::drainBattery);
     QObject::connect(bSlider, &QSlider::valueChanged, this, &Battery::updateBattery);
-    timer.start(100);
+    timer.start(1000);
 }
 
 void Battery::updateBattery(){
     if(percent == 0 && bSlider->sliderPosition() != 0) emit batteryCharged();
+    if(percent != 0 && bSlider->sliderPosition() == 0) emit batteryDrained();
     percent = bSlider->sliderPosition();
     percentLabel->setText(QString::number(percent) + "%");
 }
 
 void Battery::drainBattery(){
+    if(percent == 1) emit batteryDrained();
     if(percent>0) --percent;
     bSlider->setSliderPosition(percent);
-    if(percent == 0) emit batteryDrained();
+}
+
+void Battery::stopBattery(){
+    timer.stop();
+}
+
+void Battery::startBattery(){
+    timer.start(1000);
 }

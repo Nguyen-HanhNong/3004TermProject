@@ -1,6 +1,6 @@
 #include "led.h"
 
-LED::LED(const QColor onC, const QColor offC, QWidget* p): QWidget(p), on(false), onColour(onC), offColour(offC){
+LED::LED(QWidget* p, const QColor onC, const QColor offC): QWidget(p), on(false), onColour(onC), offColour(offC){
 
 }
 
