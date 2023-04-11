@@ -162,9 +162,6 @@ void MainWindow::select(){
 }
 
 void MainWindow::updateMenu(const QString child, QVector<QString> childItems){
-    //need to end session here somewhere
-    //ui->breathPacerLights->stop();
-
     curQListWidget->clear();
     //curQListWidget->addItems(childItems);
 
@@ -397,6 +394,7 @@ void MainWindow::startSession(){
     ui->selectorButtons->setDisabled(true);
     ui->selectButton->setDisabled(false);
     ui->selectButton->setText("End Session");
+    ui->breathPacerLights->setVisible(true);
 
     ui->menuButton->setDisabled(true);
     ui->backButton->setDisabled(true);
