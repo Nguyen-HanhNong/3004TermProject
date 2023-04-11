@@ -1,5 +1,9 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "session.h"
+#include "menu.h"
+
+int MainWindow::currentSession = -1;
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -14,12 +18,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     //breath pacer settings
     ui->breathPacersetting->setVisible(false);
+    ui->breathSlider->setValue(10);
 
     //session screen
     ui->sessionScreen->setVisible(false);
-
-    //session list
-    //initializeSessions();
 
     //main menu view initialization
     curQListWidget = ui->mainListView;
@@ -33,24 +35,56 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->selectButton, &QPushButton::pressed, this, &MainWindow::select);
     connect(ui->menuButton, &QPushButton::pressed, this, &MainWindow::menu);
     connect(ui->backButton, &QPushButton::pressed, this, &MainWindow::goBack);
+    connect(ui->deleteSessionButton, &QPushButton::pressed, this, &MainWindow::deleteSession);
 
+    //setup timer and other session related stuff
+    this->plottingTimer = new QTimer(this);
+    this->nextChallengeLevel = 1;
+    this->updateSessionGraph = new bool(false);
+
+    this->sessions = new QVector<Session*>();
+
+    QWidget* mainWidget = ui->sessionScreen;
+    QCustomPlot* graphWidget = ui->graphWidget;
+    QLabel *coherenceLabel = ui->coherenceScoreLabel;
+    QLabel *lengthLabel = ui->lengthLabel;
+    QLabel *achievementLabel = ui->achievementScoreLabel;
+    QVector<Session* >* sessions = this->sessions;
+    bool* willUpdate = this->updateSessionGraph;
+    QPushButton* coherenceLevelLight = ui->coherenceLight;
+
+    //session screen slots
+    connect(this->plottingTimer, &QTimer::timeout, this, [=]()
+    { plotDataPoints(mainWidget, graphWidget, coherenceLabel, lengthLabel, achievementLabel, sessions, willUpdate, coherenceLevelLight); });
+
+    this->plottingTimer->start(100); //just for testing, need to put it back to 1000ms (1 second) when done
 }
 
 MainWindow::~MainWindow()
 {
     delete parentMenu;
     delete ui;
+
+    delete this->plottingTimer;
+    delete this->updateSessionGraph;
+
+    for(int i = 0; i < this->sessions->size(); i++){
+        delete this->sessions->at(i);
+    }
+
+    this->sessions->clear();
+    delete this->sessions;
 }
 
 //MENU FUNCTIONS
 void MainWindow::initializeMainMenu(Menu* m){
     Menu* start = new Menu("Start Session", {}, m);
-    Menu* logs = new Menu("Logs/History", {"Session 1", "Session 2", "Session 3"}, m);
+    Menu* logs = new Menu("Logs/History", {}, m);
     Menu* settings = new Menu("Settings", {"Challenge Level", "Breath Pacer", "Reset Device"}, m);
     m->addChildMenu(start);
     m->addChildMenu(logs);
     m->addChildMenu(settings);
-    Menu* challengeLevels = new Menu("Challenge Level", {"1", "2", "3", "4", "5"}, settings);
+    Menu* challengeLevels = new Menu("Challenge Level", {"1", "2", "3", "4"}, settings);
     Menu* breathPacer = new Menu("Breath Pacer", {}, settings);
     Menu* resetDevice = new Menu("Reset Device", {"Wipe all logs and reset settings"}, settings);
     settings->addChildMenu(challengeLevels);
@@ -95,20 +129,27 @@ void MainWindow::select(){
         mainMenu = mainMenu->get(curr);
         setBreathPacer();
         return;
-    } else if(mainMenu->get(curr)->getName()=="Start Session"){ //if start session
+    }
+    else if(ui->selectButton->text()=="Return To Menu") {
+        returnToMenu();
+    } 
+    else if(mainMenu->get(curr)->getName()=="Start Session"){ //if start session
         if(ui->selectButton->text()=="End Session"){
             endSession();
-        } else {
+        }
+        else {
             startSession();
         }
         return;
-    } else if(mainMenu->getLength() > 0){ //if parent menu to a child menu
+    }
+    else if(mainMenu->getLength() > 0){ //if parent menu to a child menu
         if(mainMenu->get(curr)->getMenuItems().length() > 0){
             mainMenu = mainMenu->get(curr);
             MainWindow::updateMenu(mainMenu->getName(), mainMenu->getMenuItems());
         }
     } else {
-        qInfo("NOPE");
+        qDebug("The selected option is not handled yet. The program will now exit.");
+        exit(1);
     }
 }
 
@@ -147,16 +188,19 @@ void MainWindow::goBack(){
 void MainWindow::setChallengeLevel(int curr){
     if(mainMenu->getMenuItems()[curr] == "1"){
         qInfo("1");
+        this->nextChallengeLevel = 1;
     } else if(mainMenu->getMenuItems()[curr] == "2"){
         qInfo("2");
+        this->nextChallengeLevel = 2;
     } else if(mainMenu->getMenuItems()[curr] == "3"){
         qInfo("3");
+        this->nextChallengeLevel = 3;
     } else if(mainMenu->getMenuItems()[curr] == "4"){
         qInfo("4");
-    } else if(mainMenu->getMenuItems()[curr] == "5"){
-        qInfo("5");
+        this->nextChallengeLevel = 4;
     } else {
-        qInfo("ERROR");
+        qInfo("ERROR. The challenge level should not be set to this value. The program will now exit.");
+        exit(1);
     }
 }
 
@@ -167,7 +211,63 @@ void MainWindow::resetDevice(){
 
 //LOG FUNCTIONS
 void MainWindow::viewLog(int curr){
-    qInfo("%d", curr);
+    *(this->updateSessionGraph) = false;
+
+    ui->mainListView->setVisible(false);
+
+    ui->menuButton->setDisabled(false);
+    ui->menuButton->setVisible(true);
+
+    ui->backButton->setDisabled(false);
+    ui->backButton->setVisible(true);
+
+    ui->sessionScreen->setVisible(true);
+    ui->menuLabel->setText("Log Screen: Session " + QString::number(curr + 1));
+
+    ui->breathPacerLights->setVisible(false);
+    ui->coherenceLight->setVisible(false);
+
+    ui->averageCoherenceScoreLabel->setVisible(true);
+    ui->percentHighLabel->setVisible(true);
+    ui->percentMediumLabel->setVisible(true);
+    ui->percentLowLabel->setVisible(true);
+    ui->dateLabel->setVisible(true);
+    ui->deleteSessionButton->setVisible(true);
+
+    ui->coherenceScoreLabel->setText("Coherence Score: " + QString::number(sessions->at(curr)->getCurrentCoherence()));
+    ui->lengthLabel->setText("Length (in seconds): \n" + QString::number(sessions->at(curr)->getLength()));
+    ui->achievementScoreLabel->setText("Achievement Score: " + QString::number(sessions->at(curr)->getAchievement()));
+    ui->averageCoherenceScoreLabel->setText("Average Coherence Score: " + QString::number(sessions->at(curr)->getAverageCoherenceScore()));
+    ui->percentHighLabel->setText("Percentage of Time in High Coherence: " + QString::number(sessions->at(curr)->getPercentageOfHighCoherence()) + "%");
+    ui->percentLowLabel->setText("Percentage of Time in Low Coherence: " + QString::number(sessions->at(curr)->getPercentageOfLowCoherence()) + "%");
+    ui->percentMediumLabel->setText("Percentage of Time in Medium Coherence: " + QString::number(sessions->at(curr)->getPercentageOfMediumCoherence()) + "%");
+
+    ui->dateLabel->setText("Date: " + sessions->at(curr)->getDateCreated());
+
+    ui->graphWidget->addGraph();
+    ui->graphWidget->graph(0)->setPen(QPen(Qt::blue)); 
+
+    // make left and bottom axes always transfer their ranges to right and top axes:
+    connect(ui->graphWidget->xAxis, SIGNAL(rangeChanged(QCPRange)), ui->graphWidget->xAxis2, SLOT(setRange(QCPRange)));
+    connect(ui->graphWidget->yAxis, SIGNAL(rangeChanged(QCPRange)), ui->graphWidget->yAxis2, SLOT(setRange(QCPRange)));
+
+    // pass data points to graphs:
+    ui->graphWidget->graph(0)->setData(sessions->at(curr)->getReader().getTimeDataPoints(), sessions->at(curr)->getReader().getHeartRateDataPoints());
+
+    // let the ranges scale themselves so graph 0 fits perfectly in the visible area:
+    ui->graphWidget->rescaleAxes();
+    ui->graphWidget->yAxis->setRange(0, 180);
+
+    ui->graphWidget->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
+    ui->graphWidget->axisRect()->setRangeDrag(Qt::Horizontal);
+    ui->graphWidget->axisRect()->setRangeZoom(Qt::Horizontal);
+    ui->graphWidget->axisRect()->setRangeZoomAxes(ui->graphWidget->xAxis, NULL); //To block y axis zoom NULL axis as horizontal
+    ui->graphWidget->setSelectionRectMode(QCP::srmZoom);
+
+    ui->graphWidget->xAxis->setLabel("Time Elapsed (in seconds) ");
+    ui->graphWidget->yAxis->setLabel("Heart Rate (in BPM)");
+
+    ui->graphWidget->replot(QCustomPlot::rpRefreshHint);
 }
 
 //SHOW BREATH PACER
@@ -177,6 +277,66 @@ void MainWindow::setBreathPacer(){
     ui->breathPacersetting->setVisible(true);
     ui->breathPacersetting->isEnabled();
 
+    ui->breathSlider->setRange(1, 30);
+}
+
+void MainWindow::plotDataPoints(QWidget* mainWidget, QCustomPlot *graphWidget, QLabel* coherenceScoreLabel, QLabel* lengthLabel, QLabel* achievementLabel, QVector<Session *>* sessionsVector, bool* updateSessionGraph, QPushButton* coherenceLight) {
+    //if there are no sessions or the main widget is not visible, return
+    if(currentSession == -1 || mainWidget->isVisible() == false || *updateSessionGraph == false) {
+        return;
+    }
+
+    sessionsVector->at(currentSession)->update();
+
+    if(sessionsVector->at(currentSession)->getLength() % 5 == 0) {
+        coherenceScoreLabel->setText("Coherence Score: \n" + QString::number(sessionsVector->at(currentSession)->getCurrentCoherence()));
+        achievementLabel->setText("Achievement Score: \n" + QString::number(sessionsVector->at(currentSession)->getAchievement()));
+    }
+
+    if(sessionsVector->at(currentSession)->getCoherenceLevel() == "Low") {
+        coherenceLight->setStyleSheet("background-color: red");
+    }
+    else if(sessionsVector->at(currentSession)->getCoherenceLevel() == "Medium") {
+        coherenceLight->setStyleSheet("background-color: blue");
+    }
+    else if(sessionsVector->at(currentSession)->getCoherenceLevel() == "High") {
+        coherenceLight->setStyleSheet("background-color: green");
+    }
+
+    lengthLabel->setText("Length (in seconds): \n" + QString::number(sessionsVector->at(currentSession)->getLength()));
+
+    graphWidget->addGraph();
+    graphWidget->graph(0)->setPen(QPen(Qt::blue)); 
+
+    // make left and bottom axes always transfer their ranges to right and top axes:
+    connect(graphWidget->xAxis, SIGNAL(rangeChanged(QCPRange)), graphWidget->xAxis2, SLOT(setRange(QCPRange)));
+    connect(graphWidget->yAxis, SIGNAL(rangeChanged(QCPRange)), graphWidget->yAxis2, SLOT(setRange(QCPRange)));
+
+    // pass data points to graphs:
+    graphWidget->graph(0)->setData(sessionsVector->at(currentSession)->getReader().getTimeDataPoints(), sessionsVector->at(currentSession)->getReader().getHeartRateDataPoints());
+
+    // let the ranges scale themselves so graph 0 fits perfectly in the visible area:
+    graphWidget->rescaleAxes();
+    graphWidget->yAxis->setRange(0, 180);
+
+    graphWidget->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
+    graphWidget->axisRect()->setRangeDrag(Qt::Horizontal);
+    graphWidget->axisRect()->setRangeZoom(Qt::Horizontal);
+    graphWidget->axisRect()->setRangeZoomAxes(graphWidget->xAxis, NULL); //To block y axis zoom NULL axis as horizontal
+    graphWidget->setSelectionRectMode(QCP::srmZoom);
+
+    graphWidget->xAxis->setLabel("Time Elapsed (in seconds) ");
+    graphWidget->yAxis->setLabel("Heart Rate (in BPM)");
+
+    graphWidget->replot(QCustomPlot::rpRefreshHint);
+}
+
+/* This function creates a new session and adds it to the sessions vector. */
+void MainWindow::addNewSession() {
+    sessions->push_back(new Session(nullptr, this->nextChallengeLevel));
+    MainWindow::currentSession += 1;
+
+    mainMenu->getChildMenus()[1]->addNewMenuItem("Session " + QString::number(currentSession + 1));
 }
 
 //SESSION FUNCTIONS
@@ -195,14 +355,60 @@ void MainWindow::startSession(){
 
     qInfo("Session starting...");
 
+    addNewSession();
+    *(this->updateSessionGraph) = true;
+
     //session mechanisms
     ui->breathPacerLights->setInterval(ui->breathSlider->sliderPosition()*1000);
     ui->breathPacerLights->start();
 
+    ui->averageCoherenceScoreLabel->setVisible(false);
+    ui->percentHighLabel->setVisible(false);
+    ui->percentMediumLabel->setVisible(false);
+    ui->percentLowLabel->setVisible(false);
+    ui->dateLabel->setVisible(false);
+    ui->deleteSessionButton->setVisible(false);
 
+    ui->coherenceLight->setEnabled(false);
+    ui->coherenceLight->setVisible(true);
+    ui->coherenceLight->setStyleSheet("background-color: green");
 }
 
 void MainWindow::endSession(){
+    *(this->updateSessionGraph) = false;
+
+    ui->mainListView->setVisible(false);
+    ui->selectorButtons->setDisabled(true);
+    ui->selectButton->setDisabled(false);
+    ui->selectButton->setText("Return To Menu");
+
+    ui->menuButton->setDisabled(true);
+    ui->backButton->setDisabled(true);
+
+    ui->sessionScreen->setVisible(true);
+    ui->menuLabel->setText("Summary Screen: Session " + QString::number(currentSession + 1) + " Ended"); 
+
+    ui->breathPacerLights->stop();
+
+    this->sessions->at(currentSession)->calculateSummaryData();
+
+    ui->averageCoherenceScoreLabel->setVisible(true);
+    ui->percentHighLabel->setVisible(true);
+    ui->percentMediumLabel->setVisible(true);
+    ui->percentLowLabel->setVisible(true);
+    ui->dateLabel->setVisible(false);
+    ui->deleteSessionButton->setVisible(false);
+
+    ui->coherenceScoreLabel->setText("Coherence Score: " + QString::number(sessions->at(currentSession)->getCurrentCoherence()));
+    ui->lengthLabel->setText("Length (in seconds): \n" + QString::number(sessions->at(currentSession)->getLength()));
+    ui->achievementScoreLabel->setText("Achievement Score: " + QString::number(sessions->at(currentSession)->getAchievement()));
+    ui->averageCoherenceScoreLabel->setText("Average Coherence Score: " + QString::number(sessions->at(currentSession)->getAverageCoherenceScore()));
+    ui->percentHighLabel->setText("Percentage of Time in High Coherence: " + QString::number(sessions->at(currentSession)->getPercentageOfHighCoherence()) + "%");
+    ui->percentLowLabel->setText("Percentage of Time in Low Coherence: " + QString::number(sessions->at(currentSession)->getPercentageOfLowCoherence()) + "%");
+    ui->percentMediumLabel->setText("Percentage of Time in Medium Coherence: " + QString::number(sessions->at(currentSession)->getPercentageOfMediumCoherence()) + "%");
+}
+
+void MainWindow::returnToMenu() {
     ui->mainListView->setVisible(true);
     ui->selectorButtons->setDisabled(false);
     ui->selectButton->setText("Select");
@@ -212,9 +418,38 @@ void MainWindow::endSession(){
 
     ui->sessionScreen->setVisible(false);
     ui->menuLabel->setText("Menu");
-
-    //session mechanisms
-    ui->breathPacerLights->stop();
 }
 
+void MainWindow::deleteSession() {
+    int deleteSessionIndex = curQListWidget->currentRow();
+    if(deleteSessionIndex < 0){return ;}
 
+    sessions->erase(sessions->begin() + deleteSessionIndex);
+    currentSession -= 1;
+
+    qDebug("what is left in the sessions vector? %d", sessions->size());
+
+    QString sessionName = "Session " + QString::number(deleteSessionIndex + 1);
+
+    //qDebug("made it here 4");
+    qDebug("What is the session index? %d", deleteSessionIndex);
+    // qDebug("size of menus stringlist %d", mainMenu->getChildMenus()[1]->getMenuItems().size());
+
+    qDebug("made it here 6");
+
+    mainMenu->getChildMenus()[1]->removeMenuItem(sessionName);
+    //MainWindow::updateMenu(mainMenu->getName(), mainMenu->getMenuItems());
+
+    qDebug("made it here 5");
+
+    ui->mainListView->setVisible(true);
+    ui->selectorButtons->setDisabled(false);
+    ui->selectButton->setText("Select");
+
+    ui->menuButton->setDisabled(false);
+    ui->backButton->setDisabled(false);
+
+    ui->sessionScreen->setVisible(false);
+
+    menu();
+}

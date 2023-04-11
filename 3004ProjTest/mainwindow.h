@@ -6,6 +6,7 @@
 #include <QVector>
 
 #include "menu.h"
+#include "session.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -19,6 +20,7 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    static void plotDataPoints(QWidget* mainWidget, QCustomPlot *graphWidget, QLabel* coherenceScoreLabel, QLabel* lengthLabel, QLabel* achievementLabel, QVector<Session *>* sessionsVector, bool* updateSessionGraph, QPushButton* coherenceLight);
 
 private:
     Ui::MainWindow *ui;
@@ -43,11 +45,18 @@ private:
     //breath pacer
     void setBreathPacer();
 
-//    //session
-//    QVector<Session*> sessions;
-//    void initializeSessions();
+    //session stuff
+    QVector<Session*>* sessions;
+    static int currentSession;
+    int nextChallengeLevel;
+    QTimer *plottingTimer;
+    bool *updateSessionGraph;
+
+    void addNewSession();
     void startSession();
     void endSession();
+    void returnToMenu();
+    void deleteSession();
 
 private slots:
     void upButton();

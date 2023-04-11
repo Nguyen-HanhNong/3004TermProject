@@ -4,7 +4,7 @@
 #include <QString>
 #include <QStringList>
 #include <QVector>
-
+#include <QDebug>
 
 class Menu
 {
@@ -18,6 +18,11 @@ public:
     Menu* get(int);
     void addChildMenu(Menu*);
     int getLength();
+
+    QVector<Menu*> getChildMenus();
+    void addNewMenuItem(QString item);
+
+    void removeMenuItem(QString removedElement);
 
 private:
     QString menuName;

@@ -15,17 +15,32 @@ Reader::Reader() {
   lowCoherenceVector = QVector<double>();
   mediumCoherenceVector = QVector<double>();
 
+  timeInEachCoherence = QVector<double>();
+
+  /* Add three default values to the timeInEachCoherence vector */
+  for(int i = 0; i < 3; i++) {
+    timeInEachCoherence.push_back(0.0);
+  }
+
+  qDebug("At setup, timeInEachCoherence is: %f, %f, %f", timeInEachCoherence[0], timeInEachCoherence[1], timeInEachCoherence[2]);
+
   /* Initializing all the different integers and doubles to default values */
   lowCoherenceVectorIndex = 0;
   mediumCoherenceVectorIndex = 0;
   switchBetweenCoherence = 0;
   currentCoherenceScoreIndex = 0;
-
+  
   latestCoherenceScore = 0.0;
+  latestAchievementScore = 0.0;
+
+  numberOfAchievementUpdates = 0;
+  
+  setupClass(); //Import relevant data from files
 }
 
 /* Default destructor */
-Reader::~Reader() {}
+Reader::~Reader() {
+}
 
 /* This function sets up the Reader instance by reading in the data points and coherence scores from the various files */
 void Reader::setupClass() {
@@ -42,23 +57,27 @@ void Reader::generateNextDataPoint(double multiplierValue, double periodValue, i
   /* Use the switchBetweenCoherence variable to determine which coherence level should be displayed. The Reader will always start off with the high coherence data points first, then medium coherence data points, then low coherence data points last. */
   if(switchBetweenCoherence <= 60) {
     generateHighCoherenceDataPoint(multiplierValue, periodValue, heightValue);
+    timeInEachCoherence[0] = timeInEachCoherence[0] + 1;
     switchBetweenCoherence += 1;
   }
   else if (switchBetweenCoherence > 60 && switchBetweenCoherence <= 120) {
     generateMediumCoherenceDataPoint(adjustmentValue);
+    timeInEachCoherence[1] = timeInEachCoherence[1] + 1;
     switchBetweenCoherence += 1;
   }
   else if (switchBetweenCoherence > 120 && switchBetweenCoherence <= 180) {
     generateLowCoherenceDataPoint(adjustmentValue);
+    timeInEachCoherence[2] = timeInEachCoherence[2] + 1;
     switchBetweenCoherence += 1;
   }
   else {
     switchBetweenCoherence = 0;
   }
 
-  /* Make sure that every 5 seconds, we calculate/update the coherence score for the current data points. */
+  /* Make sure that every 5 seconds, we calculate/update the coherence score and achievement score for the current data points. */
   if(switchBetweenCoherence % 5 == 0) {
     calculateCoherenceScore();
+    calculateAchievementScore(); //Update the achievement score
   }
 }
 
@@ -69,7 +88,7 @@ void Reader::generateHighCoherenceDataPoint(double multiplierValue, double perio
     timeDataPoints.push_back(1);
     heartRateDataPoints.push_back(65);
   }
-  /* If the timeDataPoints vector is not empty, then generate a new data point by using the current time elapsed and applying the qSin function and other modifiers to the data point to get a valid heart rate data point. */
+  /* If the timeDataPoints vector is not empty, then generate a new data point by using the current time elapsed and applying the qSin function and other modifiers to the data point to get a valid heart rate data point. */ 
   else {
     timeDataPoints.push_back(timeDataPoints.last() + 1);
     heartRateDataPoints.push_back((multiplierValue * qSin((timeDataPoints.last()) / periodValue)) + heightValue);
@@ -161,7 +180,7 @@ void Reader::readAllCoherenceScores(QString lowCoherenceFileName, QString medium
   /* Create a QFile object for each of the files storing the coherence scores */
   QFile highCoherenceFile(highCoherenceFileName);
   QFile mediumCoherenceFile(mediumCoherenceFileName);
-  QFile lowCoherenceFile(lowCoherenceFileName);
+  QFile lowCoherenceFile(lowCoherenceFileName); 
 
   /* Check if the high coherence score file can be opened/isn't corrupted, if the file cannot be opened, then print a debug message and exit the program */
   if (!highCoherenceFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -227,6 +246,11 @@ void Reader::calculateCoherenceScore() {
   }
 }
 
+void Reader::calculateAchievementScore() {
+  latestAchievementScore += latestCoherenceScore; //Add the latest coherence score to the latest achievement score
+  numberOfAchievementUpdates++; //Increment the number of achievement updates by 1
+}
+
 /* This function is used to reset the Reader instance back to its initial state. */
 void Reader::resetData() {
   /* Empty the timeDataPoints, heartRateDataPoints and currentCoherenceScore vectors */
@@ -272,4 +296,28 @@ int Reader::getLatestDataPoint() {
 /* This function is used to return the switchBetweenCoherence member variable. */
 int Reader::getSwitchBetweenCoherence() {
   return switchBetweenCoherence;
+}
+
+double Reader::getLatestAchievementScore() {
+  return latestAchievementScore;
+}
+
+QVector<double> Reader::getTimeInEachCoherence() {
+  return timeInEachCoherence;
+}
+
+int Reader::getNumberOfAchievementUpdates() {
+  return numberOfAchievementUpdates;
+}
+
+QString Reader::getCoherenceLevel() {
+  if(switchBetweenCoherence <= 60) {
+    return "High";
+  }
+  else if(switchBetweenCoherence > 60 && switchBetweenCoherence <= 120) {
+    return "Medium";
+  }
+  else {
+    return "Low";
+  }
 }

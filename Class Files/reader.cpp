@@ -15,6 +15,13 @@ Reader::Reader() {
   lowCoherenceVector = QVector<double>();
   mediumCoherenceVector = QVector<double>();
 
+  timeInEachCoherence = QVector<double>();
+
+  /* Add three default values to the timeInEachCoherence vector */
+  for(int i = 0; i < 3; i++) {
+    timeInEachCoherence.push_back(0.0);
+  }
+
   /* Initializing all the different integers and doubles to default values */
   lowCoherenceVectorIndex = 0;
   mediumCoherenceVectorIndex = 0;
@@ -42,14 +49,17 @@ void Reader::generateNextDataPoint(double multiplierValue, double periodValue, i
   /* Use the switchBetweenCoherence variable to determine which coherence level should be displayed. The Reader will always start off with the high coherence data points first, then medium coherence data points, then low coherence data points last. */
   if(switchBetweenCoherence <= 60) {
     generateHighCoherenceDataPoint(multiplierValue, periodValue, heightValue);
+    timeInEachCoherence.at(0) += 1;
     switchBetweenCoherence += 1;
   }
   else if (switchBetweenCoherence > 60 && switchBetweenCoherence <= 120) {
     generateMediumCoherenceDataPoint(adjustmentValue);
+    timeInEachCoherence.at(1) += 1;
     switchBetweenCoherence += 1;
   }
   else if (switchBetweenCoherence > 120 && switchBetweenCoherence <= 180) {
     generateLowCoherenceDataPoint(adjustmentValue);
+    timeInEachCoherence.at(2) += 1;
     switchBetweenCoherence += 1;
   }
   else {

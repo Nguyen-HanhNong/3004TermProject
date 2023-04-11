@@ -1,95 +1,89 @@
 #include "session.h"
 
-Session::Session(QWidget* p): QWidget(p) {
-    this->challengeLevel = challengeLevel;
-    this->length = 0;
-    this->achievement = 0;
-    this->currentCoherence = 0;
-    this->coherenceScores = QVector<double>();
-    this->hrvData = QVector<double>();
-    this->timeData = QVector<double>();
-    timer.setInterval(5000);
-    QObject::connect(&timer, &QTimer::timeout, this, &Session::onTimerTimeout);
-    timer.start();
+Session::Session(QWidget* p, int challengeLevel): QWidget(p), challengeLevel(challengeLevel), length(0), reader(Reader()) 
+{
+    timeCreated = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
 }
 
 Session::~Session() {
 
 }
 
-double Session::calculateCoherence(QVector<double> hrvData, QVector<double> timeData) {
-    QVector<double> timeIntervals;
-    QVector<double> diffIntervals;
-
-    // Find positions of normal heartbeats and calculate time intervals
-    for (int i = 1; i < hrvData.size(); i++) {
-        // Check if both current and previous data points are normal heartbeats
-        if (hrvData[i] > 0 && hrvData[i-1] > 0) {
-            double interval = timeData[i] - timeData[i-1];
-            timeIntervals.push_back(interval);
-        }
+void Session::calculateSummaryData() {
+    if(reader.getNumberOfAchievementUpdates() == 0) {
+        averageCoherenceScore = 0;
+    }
+    else {
+        averageCoherenceScore = reader.getLatestAchievementScore() / reader.getNumberOfAchievementUpdates();
     }
 
-    // Calculate differences between successive time intervals and their squares
-    for (int i = 1; i < timeIntervals.size(); i++) {
-        double diff = timeIntervals[i] - timeIntervals[i-1];
-        double diffSquared = diff * diff;
-        diffIntervals.push_back(diffSquared);
+    if(getTimeAtHigh() == 0.0) {
+        percentageOfHighCoherence = 0.0;
+    }
+    else {
+        percentageOfHighCoherence = (getTimeAtHigh() / length) * 100;
     }
 
-    // Calculate the mean of the squared differences
-    double meanSquaredDiff = 0.0;
-    for (int i = 0; i < diffIntervals.size(); i++) {
-        meanSquaredDiff += diffIntervals[i];
+    if(getTimeAtMedium() == 0.0) {
+        percentageOfMediumCoherence = 0.0;
     }
-    meanSquaredDiff /= diffIntervals.size();
+    else {
+        percentageOfMediumCoherence = (getTimeAtMedium() / length) * 100;
+    }
 
-    // Calculate the root mean square of successive differences
-    double rmsd = std::sqrt(meanSquaredDiff);
-    return rmsd;
+    if(getTimeAtLow() == 0.0) {
+        percentageOfLowCoherence = 0.0;
+    }
+    else {
+        percentageOfLowCoherence = (getTimeAtLow() / length) * 100;
+    }
+    
+    qDebug("Average Coherence Score: %f", averageCoherenceScore);
+    qDebug("Percentage of High Coherence: %f", percentageOfHighCoherence);
+    qDebug("Percentage of Medium Coherence: %f", percentageOfMediumCoherence);
+    qDebug("Percentage of Low Coherence: %f", percentageOfLowCoherence);
+
+    qDebug("Vector of time spent in each coherence level: %f, %f, %f", getTimeAtHigh(), getTimeAtMedium(), getTimeAtLow());
+
+    return;
 }
 
 void Session::update() {
-    //Calculate current coherence
-    this->currentCoherence = calculateCoherence(this->hrvData, this->timeData);
-    //Add currentCoherence to achievement
-    this->achievement += this->currentCoherence;
-    //Increment length variable by time elapsed
-    this->length += 5;
-    //Add calculated current coherence to coherenceScores vector
-    this->coherenceScores.push_back(currentCoherence);
-}
-
-void Session::stop() {
-    //Save all new values, prevent updating until further input is received
-}
-
-void Session::end() {
-    //Transfer all information to a new log object
-    update();
-}
-
-void Session::onTimerTimeout() {
-    //Call update
-    update();
-    //Restart timer
-    timer.start();
-}
-
-QString Session::toString() {
-    QString newString =
-            "CURRENT SESSION\n   Challenge Level: "
-            + QString::number(challengeLevel) + "\n"
-            + "   Length of Session(in seconds): " + QString::number(length) + "\n"
-            + "   Achievement: " + QString::number(achievement) + "\n";
-
-    return newString;
+    this->reader.generateNextDataPoint();
+    this->length += 1;
 }
 
 // getters
 int Session::getChallengeLevel() { return challengeLevel; }
-double Session::getTimeAtLow() { return timeAtLow; }
-double Session::getTimeAtMedium() { return timeAtMedium; }
-double Session::getTimeAtHigh() { return timeAtHigh; }
+
+double Session::getTimeAtLow() { return reader.getTimeInEachCoherence().at(2); }
+
+double Session::getTimeAtMedium() { return reader.getTimeInEachCoherence().at(1); }
+
+double Session::getTimeAtHigh() { return reader.getTimeInEachCoherence().at(0); }
+
+double Session::getCurrentCoherence() {
+    return reader.getLatestCoherenceScore();
+}
+
 int Session::getLength() { return length; } //Seconds
-double Session::getAchievement() { return achievement; }
+
+double Session::getAchievement() { return reader.getLatestAchievementScore(); }
+
+Reader Session::getReader() { return reader; }
+
+double Session::getAverageCoherenceScore() { return averageCoherenceScore; }
+
+double Session::getPercentageOfHighCoherence() { return percentageOfHighCoherence; }
+
+double Session::getPercentageOfMediumCoherence() { return percentageOfMediumCoherence; }
+
+double Session::getPercentageOfLowCoherence() { return percentageOfLowCoherence; }
+
+QString Session::getCoherenceLevel() {
+    return reader.getCoherenceLevel();
+}
+
+QString Session::getDateCreated() {
+    return timeCreated;
+}

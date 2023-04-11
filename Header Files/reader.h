@@ -56,6 +56,8 @@ private:
     QVector<double> lowCoherenceVector; //the vector that stores the low coherence y-axis data points
     QVector<double> mediumCoherenceVector; //the vector that stores the medium coherence y-axis data points
 
+    QVector<double> timeInEachCoherence; //the vector that stores the time spent in each coherence level
+
     int lowCoherenceVectorIndex; //integer storing the current index of the low coherence vector
     int mediumCoherenceVectorIndex; //integer storing the current index of the medium coherence vector
 

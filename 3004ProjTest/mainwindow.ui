@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1306</width>
-    <height>503</height>
+    <height>560</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -30,10 +30,10 @@
    <widget class="QListWidget" name="mainListView">
     <property name="geometry">
      <rect>
-      <x>330</x>
+      <x>240</x>
       <y>40</y>
-      <width>621</width>
-      <height>411</height>
+      <width>721</width>
+      <height>481</height>
      </rect>
     </property>
    </widget>
@@ -66,7 +66,7 @@
    <widget class="QPushButton" name="pushButton_3">
     <property name="geometry">
      <rect>
-      <x>130</x>
+      <x>60</x>
       <y>40</y>
       <width>80</width>
       <height>25</height>
@@ -79,8 +79,8 @@
    <widget class="Battery" name="widget" native="true">
     <property name="geometry">
      <rect>
-      <x>150</x>
-      <y>130</y>
+      <x>40</x>
+      <y>120</y>
       <width>120</width>
       <height>291</height>
      </rect>
@@ -146,41 +146,168 @@
    <widget class="QWidget" name="sessionScreen" native="true">
     <property name="geometry">
      <rect>
-      <x>330</x>
+      <x>240</x>
       <y>40</y>
-      <width>621</width>
-      <height>401</height>
+      <width>711</width>
+      <height>471</height>
      </rect>
     </property>
-    <widget class="QLabel" name="label_2">
-     <property name="geometry">
-      <rect>
-       <x>270</x>
-       <y>170</y>
-       <width>85</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>session</string>
-     </property>
-    </widget>
     <widget class="LightStrip" name="breathPacerLights" native="true">
      <property name="geometry">
       <rect>
-       <x>30</x>
-       <y>360</y>
+       <x>80</x>
+       <y>390</y>
        <width>561</width>
        <height>31</height>
       </rect>
+     </property>
+    </widget>
+    <widget class="QCustomPlot" name="graphWidget" native="true">
+     <property name="geometry">
+      <rect>
+       <x>100</x>
+       <y>160</y>
+       <width>511</width>
+       <height>221</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="coherenceScoreLabel">
+     <property name="geometry">
+      <rect>
+       <x>420</x>
+       <y>120</y>
+       <width>171</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Coherence Score: </string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lengthLabel">
+     <property name="geometry">
+      <rect>
+       <x>420</x>
+       <y>90</y>
+       <width>181</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Length:</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="achievementScoreLabel">
+     <property name="geometry">
+      <rect>
+       <x>420</x>
+       <y>60</y>
+       <width>201</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Achievement Score:</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="percentHighLabel">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>70</y>
+       <width>331</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Percentage of Time in High Coherence: &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="percentMediumLabel">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>90</y>
+       <width>331</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Percentage of Time in Medium Coherence: &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="percentLowLabel">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>110</y>
+       <width>331</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Percentage of Time in Low Coherence: &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="averageCoherenceScoreLabel">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>50</y>
+       <width>241</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Average Coherence Score:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="coherenceLight">
+     <property name="geometry">
+      <rect>
+       <x>600</x>
+       <y>20</y>
+       <width>80</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="dateLabel">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>20</y>
+       <width>201</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Date Created: </string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="deleteSessionButton">
+     <property name="geometry">
+      <rect>
+       <x>310</x>
+       <y>434</y>
+       <width>101</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Delete Session</string>
      </property>
     </widget>
    </widget>
    <widget class="QWidget" name="selectorButtons" native="true">
     <property name="geometry">
      <rect>
-      <x>970</x>
-      <y>250</y>
+      <x>960</x>
+      <y>260</y>
       <width>331</width>
       <height>181</height>
      </rect>
@@ -268,7 +395,7 @@
      <x>0</x>
      <y>0</y>
      <width>1306</width>
-     <height>32</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>
@@ -285,6 +412,12 @@
    <class>LightStrip</class>
    <extends>QWidget</extends>
    <header>lightstrip.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QCustomPlot</class>
+   <extends>QWidget</extends>
+   <header>qcustomplot.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

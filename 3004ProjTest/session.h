@@ -7,6 +7,7 @@
 #include <QWidget>
 
 #include "qcustomplot.h"
+#include "reader.h"
 
 #ifndef SESSION_H
 #define SESSION_H
@@ -30,16 +31,13 @@
 class Session: public QWidget {
 
 public:
-    Session(QWidget* = nullptr);
+    Session(QWidget* = nullptr, int challengeLevel = 1);
     ~Session();
 
-    QString toString();
-
-    double calculateCoherence(QVector<double> hrvData, QVector<double> timeData);
+    void calculateSummaryData();
     void update();
-    void stop();
-    void end();
 
+    //getters
     int getChallengeLevel();
     double getTimeAtLow();
     double getTimeAtMedium();
@@ -47,23 +45,29 @@ public:
     double getCurrentCoherence();
     int getLength(); //Seconds
     double getAchievement();
+    Reader getReader();
 
-public slots:
-    void onTimerTimeout();
+    double getAverageCoherenceScore();
+    double getPercentageOfHighCoherence();
+    double getPercentageOfMediumCoherence();
+    double getPercentageOfLowCoherence();
+
+    QString getCoherenceLevel();
+    QString getDateCreated();
 
 private:
     int challengeLevel;
-    double timeAtLow;
-    double timeAtMedium;
-    double timeAtHigh;
-    double currentCoherence;
     int length;
     double achievement;
-    QTimer timer;
-    QVector<double> coherenceScores;
-    QVector<double> hrvData;
-    QVector<double> timeData;
-    //Reader reader;
+
+    double averageCoherenceScore;
+    double percentageOfHighCoherence;
+    double percentageOfMediumCoherence;
+    double percentageOfLowCoherence;
+
+    QString timeCreated;
+
+    Reader reader;
 };
 
 #endif // SESSION_H
