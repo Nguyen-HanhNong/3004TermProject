@@ -341,7 +341,7 @@
     <widget class="QPushButton" name="rightButton">
      <property name="geometry">
       <rect>
-       <x>240</x>
+       <x>260</x>
        <y>90</y>
        <width>80</width>
        <height>25</height>
@@ -370,7 +370,7 @@
      <rect>
       <x>1060</x>
       <y>350</y>
-      <width>131</width>
+      <width>151</width>
       <height>25</height>
      </rect>
     </property>
