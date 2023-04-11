@@ -41,6 +41,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->menuButton, &QPushButton::pressed, this, &MainWindow::menu);
     connect(ui->backButton, &QPushButton::pressed, this, &MainWindow::goBack);
     connect(ui->deleteSessionButton, &QPushButton::pressed, this, &MainWindow::deleteSession);
+    connect(ui->leftButton, &QPushButton::pressed, this, &MainWindow::moveBPSliderLeft);
+    connect(ui->rightButton, &QPushButton::pressed, this, &MainWindow::moveBPSliderRight);
+    connect(ui->breathSlider, &QSlider::valueChanged, this, &MainWindow::updateSliderText);
 
     //setup timer and other session related stuff
     this->plottingTimer = new QTimer(this);
@@ -137,7 +140,7 @@ void MainWindow::select(){
     }
     else if(ui->selectButton->text()=="Return To Menu") {
         returnToMenu();
-    } 
+    }
     else if(mainMenu->get(curr)->getName()=="Start Session"){ //if start session
         if(ui->selectButton->text()=="End Session"){
             endSession();
@@ -197,16 +200,16 @@ void MainWindow::goBack(){
 //CHALLENGE LEVELS FUNCTIONS
 void MainWindow::setChallengeLevel(int curr){
     if(mainMenu->getMenuItems()[curr] == "1"){
-        qInfo("1");
+        qInfo("Challenge level set to 1");
         this->nextChallengeLevel = 1;
     } else if(mainMenu->getMenuItems()[curr] == "2"){
-        qInfo("2");
+        qInfo("Challenge level set to 2");
         this->nextChallengeLevel = 2;
     } else if(mainMenu->getMenuItems()[curr] == "3"){
-        qInfo("3");
+        qInfo("Challenge level set to 3");
         this->nextChallengeLevel = 3;
     } else if(mainMenu->getMenuItems()[curr] == "4"){
-        qInfo("4");
+        qInfo("Challenge level set to 4");
         this->nextChallengeLevel = 4;
     } else {
         qInfo("ERROR. The challenge level should not be set to this value. The program will now exit.");
@@ -216,6 +219,19 @@ void MainWindow::setChallengeLevel(int curr){
 
 //RESET DEVICE
 void MainWindow::resetDevice(){
+    //first delete all logs
+    //for each session in the vector, deleteSession()
+    mainMenu = mainMenu->getParentMenu();
+    mainMenu = mainMenu->getParentMenu();
+    for(int i = 0; i<sessions->length(); i++){
+        mainMenu->getChildMenus()[1]->removeMenuItem(0);
+    }
+    sessions->clear();
+
+    //set breath pacer back to 10 seconds
+    ui->breathSlider->setSliderPosition(10);
+
+    updateMenu(mainMenu->getName(), mainMenu->getMenuItems());
 
 }
 
@@ -255,7 +271,7 @@ void MainWindow::viewLog(int curr){
     ui->dateLabel->setText("Date: " + sessions->at(curr)->getDateCreated());
 
     ui->graphWidget->addGraph();
-    ui->graphWidget->graph(0)->setPen(QPen(Qt::blue)); 
+    ui->graphWidget->graph(0)->setPen(QPen(Qt::blue));
 
     // make left and bottom axes always transfer their ranges to right and top axes:
     connect(ui->graphWidget->xAxis, SIGNAL(rangeChanged(QCPRange)), ui->graphWidget->xAxis2, SLOT(setRange(QCPRange)));
@@ -280,15 +296,31 @@ void MainWindow::viewLog(int curr){
     ui->graphWidget->replot(QCustomPlot::rpRefreshHint);
 }
 
-//SHOW BREATH PACER
+//BREATH PACER FUNCTIONS
 void MainWindow::setBreathPacer(){
-    qInfo("breath pacer setting interval...");
+    qInfo("breath pacer setting interval.");
     ui->mainListView->setVisible(false);
     ui->breathPacersetting->setVisible(true);
     ui->breathPacersetting->isEnabled();
 
     ui->breathSlider->setRange(1, 30);
 }
+
+void MainWindow::moveBPSliderLeft(){
+    int pos = ui->breathSlider->sliderPosition();
+    ui->breathSlider->setSliderPosition(pos-5);
+}
+
+void MainWindow::moveBPSliderRight(){
+    int pos = ui->breathSlider->sliderPosition();
+    ui->breathSlider->setSliderPosition(pos+5);
+}
+
+void MainWindow::updateSliderText(){
+    int val = ui->breathSlider->sliderPosition();
+    ui->breathSliderText->setText("Breath Pacer: " + QString::number(val) + " seconds");
+}
+
 
 void MainWindow::plotDataPoints(QWidget* mainWidget, QCustomPlot *graphWidget, QLabel* coherenceScoreLabel, QLabel* lengthLabel, QLabel* achievementLabel, QVector<Session *>* sessionsVector, bool* updateSessionGraph, QPushButton* coherenceLight) {
     //if there are no sessions or the main widget is not visible, return
@@ -316,7 +348,7 @@ void MainWindow::plotDataPoints(QWidget* mainWidget, QCustomPlot *graphWidget, Q
     lengthLabel->setText("Length (in seconds): \n" + QString::number(sessionsVector->at(currentSession)->getLength()));
 
     graphWidget->addGraph();
-    graphWidget->graph(0)->setPen(QPen(Qt::blue)); 
+    graphWidget->graph(0)->setPen(QPen(Qt::blue));
 
     // make left and bottom axes always transfer their ranges to right and top axes:
     connect(graphWidget->xAxis, SIGNAL(rangeChanged(QCPRange)), graphWidget->xAxis2, SLOT(setRange(QCPRange)));
@@ -353,7 +385,7 @@ void MainWindow::addNewSession() {
 
 //SESSION FUNCTIONS
 void MainWindow::startSession(){
-    
+
     addNewSession();
 
     //visuals
@@ -398,7 +430,7 @@ void MainWindow::endSession(){
     ui->backButton->setDisabled(true);
 
     ui->sessionScreen->setVisible(true);
-    ui->menuLabel->setText("Summary Screen: Session " + QString::number(sessions->at(currentSession)->getSessionID()) + " Ended"); 
+    ui->menuLabel->setText("Summary Screen: Session " + QString::number(sessions->at(currentSession)->getSessionID()) + " Ended");
 
     ui->breathPacerLights->stop();
 
@@ -423,7 +455,7 @@ void MainWindow::endSession(){
 void MainWindow::returnToMenu() {
     ui->mainListView->setVisible(true);
     ui->selectorButtons->setDisabled(false);
-    ui->selectButton->setText("Select");
+    ui->selectButton->setText("SELECT");
 
     ui->menuButton->setDisabled(false);
     ui->backButton->setDisabled(false);
@@ -438,7 +470,7 @@ void MainWindow::deleteSession() {
 
     ui->mainListView->setVisible(true);
     ui->selectorButtons->setDisabled(false);
-    ui->selectButton->setText("Select");
+    ui->selectButton->setText("SELECT");
 
     ui->menuButton->setDisabled(false);
     ui->backButton->setDisabled(false);
