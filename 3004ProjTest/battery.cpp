@@ -14,7 +14,7 @@ Battery::Battery(QWidget *p) : QWidget(p), percent(100)
     //Connecting slots
     QObject::connect(&timer, &QTimer::timeout, this, &Battery::drainBattery);
     QObject::connect(bSlider, &QSlider::valueChanged, this, &Battery::updateBattery);
-    timer.start(1000);
+    timer.start(1800);
 }
 
 void Battery::updateBattery(){
