@@ -1,5 +1,5 @@
 /*
-    Contributor: Shreya Voore
+    Contributor: Shreya Voore, Nguyen-Hanh Nong
     File name: menu.cpp
     Purpose: Tree object/data structure that is used to store menu information to be displayed and manipulated on the main window
     Source: Adapted from the Denas Case Study Menu class, from Brightspace (COMP3004)
