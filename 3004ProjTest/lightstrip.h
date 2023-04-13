@@ -1,3 +1,8 @@
+/*Author: Ashok Sivathayalan
+File name: lightstrip.h
+Purpose: Simulated strip of lights that goes back and forth based on timer
+         Used for breath pacer to indicate to user how long breaths should take*/
+         
 #ifndef LIGHTSTRIP_H
 #define LIGHTSTRIP_H
 
@@ -19,6 +24,7 @@ public slots:
     //Used to start/stop the lights at the start and end of a session
     void start();
     void stop();
+    
     //Adjusts timing of lights
     //Pass in time for full breath in milliseconds
     void setInterval(int);
