@@ -75,7 +75,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(this->plottingTimer, &QTimer::timeout, this, [=]()
     { plotDataPoints(mainWidget, graphWidget, coherenceLabel, lengthLabel, achievementLabel, sessions, willUpdate, coherenceLevelLight); });
 
-    this->plottingTimer->start(100); //just for testing, need to put it back to 1000ms (1 second) when done
+    this->plottingTimer->start(1000); //just for testing, need to put it back to 1000ms (1 second) when done
 }
 
 MainWindow::~MainWindow()
