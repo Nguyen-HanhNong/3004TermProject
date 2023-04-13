@@ -1,3 +1,8 @@
+/*
+    Authors: Shreya Voore, Nguyen-Hanh Nong, Ashok Sivathalayan, Awwab Mahdi
+    Purpose: The main window of the application and controls the application.
+*/
+
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "session.h"
@@ -11,7 +16,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    //menu structure
+    //setting up menu tree by making the first menu
     mainMenu = new Menu("Menu", {"Start Session", "Logs/History", "Settings"}, nullptr);
     parentMenu = mainMenu;
     initializeMainMenu(mainMenu);
@@ -25,7 +30,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     //main menu view initialization
     curQListWidget = ui->mainListView;
-    //curQListWidget->addItems(mainMenu->getMenuItems());
 
     for(int i = 0; i<mainMenu->getLength(); i++){
         curQListWidget->addItem(mainMenu->get(i)->getName());
@@ -95,29 +99,34 @@ MainWindow::~MainWindow()
 }
 
 //MENU FUNCTIONS
+
+//intializes main menu
 void MainWindow::initializeMainMenu(Menu* m){
-    Menu* start = new Menu("Start Session", {}, m);
-    Menu* logs = new Menu("Logs/History", {}, m);
+    Menu* start = new Menu("Start Session", {}, m); //making each of the sub menus, empty list because it connects to a device action
+    Menu* logs = new Menu("Logs/History", {}, m); //empty list because there are no sessions yet
     Menu* settings = new Menu("Settings", {"Challenge Level", "Breath Pacer", "Reset Device"}, m);
-    m->addChildMenu(start);
+    m->addChildMenu(start); //adding the child menus to the main menu
     m->addChildMenu(logs);
     m->addChildMenu(settings);
-    Menu* challengeLevels = new Menu("Challenge Level", {"1", "2", "3", "4"}, settings);
-    Menu* breathPacer = new Menu("Breath Pacer", {}, settings);
+    Menu* challengeLevels = new Menu("Challenge Level", {"1", "2", "3", "4"}, settings); //making the sub menus for the main sub menus
+    Menu* breathPacer = new Menu("Breath Pacer", {}, settings); //empty list because connects to breath pacer slider widget
     Menu* resetDevice = new Menu("Reset Device", {"Wipe all logs and reset settings"}, settings);
-    settings->addChildMenu(challengeLevels);
+    settings->addChildMenu(challengeLevels); //adding the child menus
     settings->addChildMenu(breathPacer);
     settings->addChildMenu(resetDevice);
 }
 
+//when the up button is clicked, the highlighted row changes (goes up)
 void MainWindow::upButton(){
     int next = curQListWidget->currentRow() - 1;
-    if(next < 0){
+    if(next < 0){ // if the highlighted row is at the top, when clicking up itll start at the bottom
         next = curQListWidget->count() - 1;
     }
+    //sets the actual highlight (logic before finds the intended row index)
     curQListWidget->setCurrentRow(next);
 }
 
+//operates similar to the up button, instead moves downwards
 void MainWindow::downButton(){
     int next = curQListWidget->currentRow() + 1;
     if(next > curQListWidget->count() - 1){
@@ -126,8 +135,9 @@ void MainWindow::downButton(){
     curQListWidget->setCurrentRow(next);
 }
 
+//select middle button
 void MainWindow::select(){
-    int curr = curQListWidget->currentRow();
+    int curr = curQListWidget->currentRow(); //getting the current row menu
     if(curr < 0){return ;}
 
     //if choosing challenge level
@@ -144,11 +154,11 @@ void MainWindow::select(){
         viewLog(curr);
         return;
     } else if(mainMenu->get(curr)->getName()=="Breath Pacer"){ //if breath pacer
-        mainMenu = mainMenu->get(curr);
+        //mainMenu = mainMenu->get(curr);
         setBreathPacer();
         return;
     }
-    else if(ui->selectButton->text()=="Return To Menu") {
+    else if(ui->selectButton->text()=="Return To Menu") { //if return to menu
         returnToMenu();
     }
     else if(mainMenu->get(curr)->getName()=="Start Session"){ //if start session
@@ -171,16 +181,20 @@ void MainWindow::select(){
     }
 }
 
+//updates menu with the child items provided
 void MainWindow::updateMenu(const QString child, QVector<QString> childItems){
     curQListWidget->clear();
-    //curQListWidget->addItems(childItems);
+    //clears the current lsit widget
 
+    //adds all the items to the widget
     for(int i = 0; i < childItems.length(); i++) {
         curQListWidget->addItem(childItems.at(i));
     }
 
+    //sets the current highlighted row to the first row
     curQListWidget->setCurrentRow(0);
 
+    //visuals
     ui->menuLabel->setText(child);
     ui->breathPacersetting->setVisible(false);
     ui->sessionScreen->setVisible(false);
@@ -188,24 +202,28 @@ void MainWindow::updateMenu(const QString child, QVector<QString> childItems){
     ui->selectorButtons->setDisabled(false);
 }
 
+//when the menu button is clicked, return to the main original menu
 void MainWindow::menu(){
+    //goes back to the parent menus until the main menu is the original menu with the name "Menu"
     while(mainMenu->getName() != "Menu"){
         mainMenu = mainMenu->getParentMenu();
     }
+    //once we get the right menu, update the list widget
     updateMenu(mainMenu->getName(), mainMenu->getMenuItems());
 }
 
+//back button is clicked, goes back to the parent menu
 void MainWindow::goBack(){
-    if(mainMenu->getName() != "Menu"){
+    if(mainMenu->getName() != "Menu"){ //if its not the original menu, go back to parent menu
         mainMenu = mainMenu->getParentMenu();
         updateMenu(mainMenu->getName(), mainMenu->getMenuItems());
-    } else {
+    } else { //if its the original menu, everything stays the same
         updateMenu(mainMenu->getName(), mainMenu->getMenuItems());
     }
 }
 
 //CHALLENGE LEVELS FUNCTIONS
-void MainWindow::setChallengeLevel(int curr){
+void MainWindow::setChallengeLevel(int curr){ //sets the challenge level based on the int chosen
     if(mainMenu->getMenuItems()[curr] == "1"){
         this->nextChallengeLevel = 1;
         menu();
@@ -227,12 +245,13 @@ void MainWindow::setChallengeLevel(int curr){
 //RESET DEVICE
 void MainWindow::resetDevice(){
     //first delete all logs
-    //for each session in the vector, deleteSession()
+    //for each session in the vector, remove the menu item
     mainMenu = mainMenu->getParentMenu();
     mainMenu = mainMenu->getParentMenu();
     for(int i = 0; i<sessions->length(); i++){
         mainMenu->getChildMenus()[1]->removeMenuItem(0);
     }
+    //clear the sessions vector
     sessions->clear();
 
     //set breath pacer back to 10 seconds
@@ -240,7 +259,7 @@ void MainWindow::resetDevice(){
 
     updateMenu(mainMenu->getName(), mainMenu->getMenuItems());
 
-    /* Set the challenge level, current session index and updateSessionGraph booelan back to their default values */
+    /* Set the challenge level, current session index and updateSessionGraph boolean back to their default values */
     this->nextChallengeLevel = 1;
     currentSession = -1;
     *(this->updateSessionGraph) = false;
@@ -250,6 +269,7 @@ void MainWindow::resetDevice(){
 void MainWindow::viewLog(int curr){
     *(this->updateSessionGraph) = false;
 
+    //visuals
     ui->mainListView->setVisible(false);
 
     ui->menuButton->setDisabled(false);
@@ -307,9 +327,13 @@ void MainWindow::viewLog(int curr){
     ui->graphWidget->replot(QCustomPlot::rpRefreshHint);
 }
 
+
 //BREATH PACER FUNCTIONS
+
+//displays the breath pacer slider
 void MainWindow::setBreathPacer(){
     qInfo("breath pacer setting interval.");
+    //
     ui->mainListView->setVisible(false);
     ui->breathPacersetting->setVisible(true);
     ui->breathPacersetting->isEnabled();
@@ -317,22 +341,27 @@ void MainWindow::setBreathPacer(){
     ui->breathSlider->setRange(1, 30);
 }
 
+//when left button is clicked, the slider moves left by an increment
 void MainWindow::moveBPSliderLeft(){
     int pos = ui->breathSlider->sliderPosition();
     ui->breathSlider->setSliderPosition(pos-5);
 }
 
+//when the right button is clicked, the slider moves right by an increment
 void MainWindow::moveBPSliderRight(){
     int pos = ui->breathSlider->sliderPosition();
     ui->breathSlider->setSliderPosition(pos+5);
 }
 
+//updates slider text based on the slider value
 void MainWindow::updateSliderText(){
     int val = ui->breathSlider->sliderPosition();
     ui->breathSliderText->setText("Breath Pacer: " + QString::number(val) + " seconds");
 }
 
 
+//SESSION FUNCTIONS
+//plots the data points for the session graph
 void MainWindow::plotDataPoints(QWidget* mainWidget, QCustomPlot *graphWidget, QLabel* coherenceScoreLabel, QLabel* lengthLabel, QLabel* achievementLabel, QVector<Session *>* sessionsVector, bool* updateSessionGraph, LED* coherenceLight) {
     //if there are no sessions or the main widget is not visible, return
     if(currentSession == -1 || mainWidget->isVisible() == false || *updateSessionGraph == false) {
@@ -394,14 +423,15 @@ void MainWindow::addNewSession() {
     mainMenu->getChildMenus()[1]->addNewMenuItem("Session " + QString::number(sessions->at(currentSession)->getSessionID()));
 }
 
-//SESSION FUNCTIONS
+//starts the session when the start session button is clicked
 void MainWindow::startSession(){
-    if(!hasSignal){
+    if(!hasSignal){ //checks if the hrv signal is on
         qDebug()<<"Needs active signal to start session!";
         return;
     }
-    addNewSession();
+    addNewSession(); //adds new session to the vector
     activeSession = true;
+
     //visuals
     ui->mainListView->setVisible(false);
     ui->selectorButtons->setDisabled(true);
@@ -417,10 +447,11 @@ void MainWindow::startSession(){
 
     *(this->updateSessionGraph) = true;
 
-    //session mechanisms
+    //starts breath pacer animation/lights
     ui->breathPacerLights->setInterval(ui->breathSlider->sliderPosition()*1000);
     ui->breathPacerLights->start();
 
+    //visuals
     ui->averageCoherenceScoreLabel->setVisible(false);
     ui->percentHighLabel->setVisible(false);
     ui->percentMediumLabel->setVisible(false);
@@ -433,10 +464,12 @@ void MainWindow::startSession(){
     ui->coherenceLight->setColour(QColor("green"));
 }
 
+//ends session when select button is clicked
 void MainWindow::endSession(){
-    *(this->updateSessionGraph) = false;
+    *(this->updateSessionGraph) = false; //stop updating the session graph
     activeSession = false;
     qDebug()<<1;
+    //visuals
     ui->mainListView->setVisible(false);
     ui->selectorButtons->setDisabled(true);
     ui->selectButton->setDisabled(false);
@@ -445,6 +478,7 @@ void MainWindow::endSession(){
     ui->menuButton->setDisabled(true);
     ui->backButton->setDisabled(true);
 
+    //shows the session data recorded
     ui->sessionScreen->setVisible(true);
     ui->menuLabel->setText("Summary Screen: Session " + QString::number(sessions->at(currentSession)->getSessionID()) + " Ended");
     qDebug()<<3;
@@ -468,6 +502,7 @@ void MainWindow::endSession(){
     ui->percentMediumLabel->setText("Percentage of Time in Medium Coherence: " + QString::number(sessions->at(currentSession)->getPercentageOfMediumCoherence()) + "%");
 }
 
+//when the middle button is clicked, the list widget is set to visible
 void MainWindow::returnToMenu() {
     ui->mainListView->setVisible(true);
     ui->selectorButtons->setDisabled(false);
@@ -480,8 +515,9 @@ void MainWindow::returnToMenu() {
     ui->menuLabel->setText("Menu");
 }
 
+//removes session
 void MainWindow::deleteSession() {
-    int deleteSessionIndex = curQListWidget->currentRow();
+    int deleteSessionIndex = curQListWidget->currentRow(); //gets the index of the session meant to be deleted
     if(deleteSessionIndex < 0){return ;}
 
     ui->mainListView->setVisible(true);
@@ -493,22 +529,25 @@ void MainWindow::deleteSession() {
 
     ui->sessionScreen->setVisible(false);
 
-    menu();
+    menu(); //goes back to main menu
 
-    mainMenu->getChildMenus()[1]->removeMenuItem(deleteSessionIndex);
+    mainMenu->getChildMenus()[1]->removeMenuItem(deleteSessionIndex); //removes the menu item at the index
 
-    sessions->erase(sessions->begin() + deleteSessionIndex);
-    currentSession -= 1;
+    sessions->erase(sessions->begin() + deleteSessionIndex); //removes the session from the session vector
+    currentSession -= 1; //updates the id to be used for the next session
 }
 
+//if the battery is dead, the device turns off
 void MainWindow::batteryDead(){
    turnOff();
 }
 
+//if the battery has charge, the device turns on
 void MainWindow::batteryCharged(){
     turnOn();
 }
 
+//changes the signal for hrv
 void MainWindow::changeSignal(){
     //Switching the signal
     hasSignal = !hasSignal;
@@ -531,6 +570,7 @@ void MainWindow::changeSignal(){
     }
 }
 
+//turns on device
 void MainWindow::turnOn(){
     on = true;
     //Enabling all the device buttons
@@ -546,6 +586,7 @@ void MainWindow::turnOn(){
     ui->battery->startBattery();
 }
 
+//turns off device
 void MainWindow::turnOff(){
     on = false;
     //Ending session if one is active
@@ -566,8 +607,8 @@ void MainWindow::turnOff(){
     ui->battery->stopBattery();
 }
 
+//power button slot, if the power button is clicked, device turns either on or off
 void MainWindow::powerButton(){
     if(!on) turnOn();
     else turnOff();
 }
-
