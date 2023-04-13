@@ -1,8 +1,9 @@
 /* Author: Nguyen-Hanh Nong */
 /* File Name: reader.cpp */
 /* Purpose: This is the source file for the Reader class. It contains the implementation for the Reader class. */
-/* Functionality: The Reader class is less of a class itself but more a collection of methods and variables that are involved in the graphing functionality of the heart rate monitor. It contains functions to generate data for various levels of coherence by either generating the data itself or reading from a file. It also contains the corresponding coherence score for the heart rates. */
+/* Functionality: The Reader class is less of a class itself but more a collection of methods and variables that are involved in the graphing functionality of the heart rate monitor. It contains functions to generate data for various levels of coherence by either generating the data itself or reading from a file. It also contains the corresponding coherence score and achievement score for the heart rates. */
 
+/* Include the corresponding header file */
 #include "reader.h"
 
 /* Default constructor */
@@ -22,8 +23,6 @@ Reader::Reader() {
     timeInEachCoherence.push_back(0.0);
   }
 
-  qDebug("At setup, timeInEachCoherence is: %f, %f, %f", timeInEachCoherence[0], timeInEachCoherence[1], timeInEachCoherence[2]);
-
   /* Initializing all the different integers and doubles to default values */
   lowCoherenceVectorIndex = 0;
   mediumCoherenceVectorIndex = 0;
@@ -39,8 +38,7 @@ Reader::Reader() {
 }
 
 /* Default destructor */
-Reader::~Reader() {
-}
+Reader::~Reader() {}
 
 /* This function sets up the Reader instance by reading in the data points and coherence scores from the various files */
 void Reader::setupClass() {
@@ -54,36 +52,39 @@ void Reader::setupClass() {
 
 /* This function is used to generate the next data point for the HRV graph depending on which coherence level should currently be displayed */
 void Reader::generateNextDataPoint(double multiplierValue, double periodValue, int heightValue, int adjustmentValue) {
-  /* Use the switchBetweenCoherence variable to determine which coherence level should be displayed. The Reader will always start off with the high coherence data points first, then medium coherence data points, then low coherence data points last. */
+  /* Use the switchBetweenCoherence variable to determine which coherence level should be displayed. The Reader will always start off with the high coherence data points first, then medium coherence data points, then low coherence data points last. The Reader will switch after 60 data points are plotted for each coherence level. */
   if(switchBetweenCoherence <= 60) {
+    /* Generate a high coherence data point, increase the time for high coherence by 1 second and increment the switchBetweenCoherence variable by 1 */
     generateHighCoherenceDataPoint(multiplierValue, periodValue, heightValue);
     timeInEachCoherence[0] = timeInEachCoherence[0] + 1;
     switchBetweenCoherence += 1;
   }
   else if (switchBetweenCoherence > 60 && switchBetweenCoherence <= 120) {
+    /* Generate a medium coherence data point, increase the time for medium coherence by 1 second and increment the switchBetweenCoherence variable by 1 */
     generateMediumCoherenceDataPoint(adjustmentValue);
     timeInEachCoherence[1] = timeInEachCoherence[1] + 1;
     switchBetweenCoherence += 1;
   }
   else if (switchBetweenCoherence > 120 && switchBetweenCoherence <= 180) {
+    /* Generate a low coherence data point, increase the time for low coherence by 1 second and increment the switchBetweenCoherence variable by 1 */
     generateLowCoherenceDataPoint(adjustmentValue);
     timeInEachCoherence[2] = timeInEachCoherence[2] + 1;
     switchBetweenCoherence += 1;
   }
   else {
-    switchBetweenCoherence = 0;
+    switchBetweenCoherence = 0; //Reset the switchBetweenCoherence variable to 0
   }
 
   /* Make sure that every 5 seconds, we calculate/update the coherence score and achievement score for the current data points. */
   if(switchBetweenCoherence % 5 == 0) {
-    calculateCoherenceScore();
+    calculateCoherenceScore(); //Update the coherence score
     calculateAchievementScore(); //Update the achievement score
   }
 }
 
 /* This function is used to generate a data point that is simulating a high coherent heart rate. */
 void Reader::generateHighCoherenceDataPoint(double multiplierValue, double periodValue, int heightValue) {
-  /* Generate a new data point starting at 65 if the timeDataPoints vector is empty. */
+  /* Generate a new data point starting at 65 (arbitrary numbers) if the timeDataPoints vector is empty. */
   if(timeDataPoints.size() == 0) {
     timeDataPoints.push_back(1);
     heartRateDataPoints.push_back(65);
@@ -246,6 +247,7 @@ void Reader::calculateCoherenceScore() {
   }
 }
 
+/* This function is used to calculate and update the achievement score for the Reader instance. */
 void Reader::calculateAchievementScore() {
   latestAchievementScore += latestCoherenceScore; //Add the latest coherence score to the latest achievement score
   numberOfAchievementUpdates++; //Increment the number of achievement updates by 1
@@ -263,8 +265,11 @@ void Reader::resetData() {
   mediumCoherenceVectorIndex = 0;
   switchBetweenCoherence = 0;
   currentCoherenceScoreIndex = 0;
-
+  
   latestCoherenceScore = 0.0;
+  latestAchievementScore = 0.0;
+
+  numberOfAchievementUpdates = 0;
 }
 
 /* This function is used to return the timeDataPoints vector */
@@ -298,20 +303,26 @@ int Reader::getSwitchBetweenCoherence() {
   return switchBetweenCoherence;
 }
 
+/* This function is used to return the latestAchievementScore member variable. */
 double Reader::getLatestAchievementScore() {
   return latestAchievementScore;
 }
 
+/* This function is used to return the timeInEachCoherence member variable. */
 QVector<double> Reader::getTimeInEachCoherence() {
   return timeInEachCoherence;
 }
 
+/* This function is used to return the numberOfAchievementUpdates member variable. */
 int Reader::getNumberOfAchievementUpdates() {
   return numberOfAchievementUpdates;
 }
 
+/* This function is used to return either "Low", "Medium" or "High" coherence label depending on the challenge level parameter. */
 QString Reader::getCoherenceLevel(int challengeLevel) {
+  /* Check the challenge level and return the appropriate coherence level label */
   switch (challengeLevel) {
+    /* If the challenge level is 1, then set the "Medium" boundary to 0.5 and 0.9 and the "High" and "Low" boundaries accordingly */
     case 1:
       if(latestCoherenceScore < 0.5) {
         return "Low";
@@ -323,6 +334,7 @@ QString Reader::getCoherenceLevel(int challengeLevel) {
         return "High";
       }
       break;
+    /* If the challenge level is 2, then set the "Medium" boundary to 0.6 and 2.1 and the "High" and "Low" boundaries accordingly */
     case 2:
       if(latestCoherenceScore < 0.6) {
         return "Low";
@@ -334,6 +346,7 @@ QString Reader::getCoherenceLevel(int challengeLevel) {
         return "High";
       }
       break;
+    /* If the challenge level is 3, then set the "Medium" boundary to 1.8 and 4.0 and the "High" and "Low" boundaries accordingly */
     case 3:
       if(latestCoherenceScore < 1.8) {
         return "Low";
@@ -345,6 +358,7 @@ QString Reader::getCoherenceLevel(int challengeLevel) {
         return "High";
       }
       break;
+    /* If the challenge level is 4, then set the "Medium" boundary to 4.0 and 6.0 and the "High" and "Low" boundaries accordingly */
     case 4:
       if(latestCoherenceScore < 4.0) {
         return "Low";
@@ -356,10 +370,11 @@ QString Reader::getCoherenceLevel(int challengeLevel) {
         return "High";
       }
       break;
+    /* If the challenge level is not between 1 and 4, then print an error message and exit the program */
     default:
       qDebug() << "Error: Invalid challenge level. The program will now exit";
       exit(1);
     }
 
-    return "Error";
+    return "Error"; //Return "Error" if we somehow get here
 }

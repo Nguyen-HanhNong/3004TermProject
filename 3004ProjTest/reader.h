@@ -1,7 +1,7 @@
 /* Author: Nguyen-Hanh Nong */
 /* File Name: reader.h */
 /* Purpose: This is the header file for the Reader class. It contains the function prototypes and member variables for the Reader class. */
-/* Functionality: The Reader class is less of a class itself but more a collection of methods and variables that are involved in the graphing functionality of the heart rate monitor. It contains functions to generate data for various levels of coherence by either generating the data itself or reading from a file. It also contains the corresponding coherence score for the heart rates. */
+/* Functionality: The Reader class is less of a class itself but more a collection of methods and variables that are involved in the graphing functionality of the heart rate monitor. It contains functions to generate data for various levels of coherence by either generating the data itself or reading from a file. It also contains the corresponding coherence score and achievement score for the heart rates. */
 
 /* Include all the necessary headers and libraries */
 #include <QMainWindow>
@@ -22,6 +22,7 @@ public:
     void setupClass();
 
     /* Functions to generate data points */
+    
     void generateNextDataPoint(double multiplierValue = 20.0, double periodValue = 5.0, int heightValue = 80, int adjustmentValue = 0); // function to generate the next data point
 
     void generateHighCoherenceDataPoint(double multiplierValue = 20.0, double periodValue = 5.0, int heightValue = 80); //function to generate the high coherence heart rate data points
@@ -29,6 +30,7 @@ public:
     void generateLowCoherenceDataPoint(int adjustmentValue = 0); //function to generate the low coherence heart rate data points
 
     /* Functions to read heart rate data from a file */
+
     void readLowCoherenceDataPoints(QString fileName); //function to read the low coherence heart rate data points from a file
     void readMediumCoherenceDataPoints(QString fileName); //function to read the medium coherence heart rate data points from a file
     void readAllCoherenceScores(QString lowCoherenceFileName, QString mediumCoherenceFileName, QString highCoherenceFileName); //function to read all the coherence scores from a file
