@@ -1,0 +1,204 @@
+title 3004 Term Project - Team 15 (Normal Operation Diagram)
+
+participant aMainWindow
+participant aSession
+participant aSession2
+participant aBreathPacerLights
+participant aMenu
+participant aMenu2
+participant aSelectButton
+participant aDownButton
+participant aDeleteSessionButton
+participant aRightButton
+participant aMenuButton
+
+note over aMainWindow, aSession: Preconditions: \n - I'm assuming that the sequence diagram starts as the device is booting up. \n - I'm assuming that the "Normal Operating Diagram" touches upon all aspects of the device.
+
+activate aMainWindow
+aMainWindow->aMainWindow: setupUi(this)
+
+aMainWindow->aMainWindow: initializeMainMenu(mainMenu)
+
+note over aMainWindow, aSession: Now that the device has booted up, we will try and run a session.
+
+aMainWindow->aSelectButton: pressed()
+activate aSelectButton
+aSelectButton->aMainWindow: select()
+deactivate aSelectButton
+aMainWindow->aMainWindow: startSession()
+aMainWindow->aMainWindow: addNewSession()
+aMainWindow->aMenu: addNewMenuItem(item)
+aMainWindow->aBreathPacerLights: start()
+
+loop every 1 second that the HRV signal is turned on or until the user decides to end the session
+aMainWindow->aMainWindow: plotDataPoints(mainWidget, graphWidget, coherenceScoreLabel, lengthLabel, achievementLabel, sessionsVector, updateSessionGraph, coherenceLight)
+aMainWindow->aSession: update()
+end
+
+aMainWindow->aSelectButton: pressed()
+activate aSelectButton
+aSelectButton->aMainWindow: select()
+deactivate aSelectButton
+aMainWindow->aMainWindow: endSession()
+aMainWindow->aSession: calculateSummaryData()
+aMainWindow->aBreathPacerLights: stop()
+
+aMainWindow->aSelectButton: pressed()
+activate aSelectButton
+aSelectButton->aMainWindow: select()
+deactivate aSelectButton
+aMainWindow->aMainWindow: returnToMenu()
+
+note over aMainWindow, aSession: Now we're going to try and look up that session in the device
+
+aMainWindow->aDownButton: pressed()
+activate aDownButton
+aDownButton->aMainWindow: downButton()
+deactivate aDownButton
+aMainWindow->aSelectButton: pressed()
+activate aSelectButton
+aSelectButton->aMainWindow: select()
+deactivate aSelectButton
+
+note over aMainWindow, aSession: Now we've entered the "Logs/History" part of the menu
+
+aMainWindow->aSelectButton: pressed()
+activate aSelectButton
+aSelectButton->aMainWindow: select()
+deactivate aSelectButton
+
+note over aMainWindow, aSession: Now we're currently seeing the history/log for the 1st session ran. Now we're going to delete it.
+
+aMainWindow->aDeleteSessionButton: pressed()
+activate aDeleteSessionButton
+aDeleteSessionButton->aMainWindow: deleteSession()
+deactivate aDeleteSessionButton
+aMainWindow->aMenu: removeMenuItem(deleteSessionIndex)
+
+note over aMainWindow, aSession: Now we've deleted the 1st session created, let's now go change the challenge level to 3 and breath pacer settings to 30 seconds.
+
+loop twice
+aMainWindow->aDownButton: pressed()
+activate aDownButton
+aDownButton->aMainWindow: downButton()
+deactivate aDownButton
+end
+
+loop twice
+aMainWindow->aSelectButton: pressed()
+activate aSelectButton
+aSelectButton->aMainWindow: select()
+deactivate aSelectButton
+end
+
+loop twice
+aMainWindow->aDownButton: pressed()
+activate aDownButton
+aDownButton->aMainWindow: downButton()
+deactivate aDownButton
+end
+
+aMainWindow->aSelectButton: pressed()
+activate aSelectButton
+aSelectButton->aMainWindow: select()
+deactivate aSelectButton
+aMainWindow->aMainWindow: setChallengeLevel(curr)
+
+loop twice
+aMainWindow->aDownButton: pressed()
+activate aDownButton
+aDownButton->aMainWindow: downButton()
+deactivate aDownButton
+end
+
+aMainWindow->aSelectButton: pressed()
+activate aSelectButton
+aSelectButton->aMainWindow: select()
+deactivate aSelectButton
+
+aMainWindow->aDownButton: pressed()
+activate aDownButton
+aDownButton->aMainWindow: downButton()
+deactivate aDownButton
+
+aMainWindow->aSelectButton: pressed()
+activate aSelectButton
+aSelectButton->aMainWindow: select()
+deactivate aSelectButton
+
+loop repeat 4 times
+aMainWindow->aRightButton: pressed()
+activate aRightButton
+aRightButton->aMainWindow: moveBPSliderRight()
+deactivate aRightButton
+end 
+
+aMainWindow->aMenuButton: pressed()
+activate aMenuButton
+aMenuButton->aMainWindow: menu()
+deactivate aMenuButton
+
+note over aMainWindow, aSession2: Now we've changed stuff in the settings, we're going to do a new session to show the changes.
+
+aMainWindow->aSelectButton: pressed()
+activate aSelectButton
+aSelectButton->aMainWindow: select()
+deactivate aSelectButton
+
+aMainWindow->aMainWindow: startSession()
+aMainWindow->aMainWindow: addNewSession()
+aMainWindow->aMenu2: addNewMenuItem(item)
+aMainWindow->aBreathPacerLights: start()
+
+loop every 1 second that the HRV signal is turned on or until the user decides to end the session
+aMainWindow->aMainWindow: plotDataPoints(mainWidget, graphWidget, coherenceScoreLabel, lengthLabel, achievementLabel, sessionsVector, updateSessionGraph, coherenceLight)
+aMainWindow->aSession2: update()
+end
+
+aMainWindow->aSelectButton: pressed()
+activate aSelectButton
+aSelectButton->aMainWindow: select()
+deactivate aSelectButton
+aMainWindow->aMainWindow: endSession()
+aMainWindow->aSession2: calculateSummaryData()
+aMainWindow->aBreathPacerLights: stop()
+
+aMainWindow->aSelectButton: pressed()
+activate aSelectButton
+aSelectButton->aMainWindow: select()
+deactivate aSelectButton
+aMainWindow->aMainWindow: returnToMenu()
+
+note over aMainWindow, aSession2: Now the final thing we're going to do is to reset the device.
+
+loop twice
+aMainWindow->aDownButton: pressed()
+activate aDownButton
+aDownButton->aMainWindow: downButton()
+deactivate aDownButton
+end
+
+aMainWindow->aSelectButton: pressed()
+activate aSelectButton
+aSelectButton->aMainWindow: select()
+deactivate aSelectButton
+
+loop twice
+aMainWindow->aDownButton: pressed()
+activate aDownButton
+aDownButton->aMainWindow: downButton()
+deactivate aDownButton
+end
+
+loop twice
+aMainWindow->aSelectButton: pressed()
+activate aSelectButton
+aSelectButton->aMainWindow: select()
+deactivate aSelectButton
+end
+
+aMainWindow->aMainWindow: resetDevice()
+
+deactivate aMainWindow
+
+note over aMainWindow, aSession2: Now we have finished demonstrating the normal use case for the device.

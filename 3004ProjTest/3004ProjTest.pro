@@ -20,7 +20,6 @@ SOURCES += \
     battery.cpp \
     led.cpp \
     lightstrip.cpp \
-    log.cpp \
     main.cpp \
     mainwindow.cpp \
     menu.cpp \
@@ -32,7 +31,6 @@ HEADERS += \
     battery.h \
     led.h \
     lightstrip.h \
-    log.h \
     mainwindow.h \
     menu.h \
     qcustomplot.h \
