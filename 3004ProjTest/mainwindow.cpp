@@ -44,7 +44,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->selectButton, &QPushButton::pressed, this, &MainWindow::select);
     connect(ui->menuButton, &QPushButton::pressed, this, &MainWindow::menu);
     connect(ui->backButton, &QPushButton::pressed, this, &MainWindow::goBack);
-    connect(ui->deleteSessionButton, &QPushButton::pressed, this, &MainWindow::deleteSession);
+    connect(ui->deleteSessionButton, &QPushButton::released, this, &MainWindow::deleteSession);
     connect(ui->leftButton, &QPushButton::pressed, this, &MainWindow::moveBPSliderLeft);
     connect(ui->rightButton, &QPushButton::pressed, this, &MainWindow::moveBPSliderRight);
     connect(ui->breathSlider, &QSlider::valueChanged, this, &MainWindow::updateSliderText);
