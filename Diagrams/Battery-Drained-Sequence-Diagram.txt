@@ -1,0 +1,38 @@
+title 3004 Term Project - Team 15 (Drained Battery Diagram)
+
+participant aQTimer
+participant aBattery
+participant aMainWindow
+participant aSession
+participant aBreathPacerLights
+
+note over aQTimer, aMainWindow: Preconditions: \n - The device is intially turned on.
+
+activate aMainWindow
+activate aQTimer
+aQTimer->aBattery: timeout()
+aBattery->aBattery: drainBattery()
+
+note over aQTimer, aBattery: Assuming percent == 1:
+
+aBattery->aMainWindow: batteryDrained()
+aMainWindow->aMainWindow: batteryDead()
+aMainWindow->aMainWindow: turnOff()
+
+note over aMainWindow, aSession: If there is a session running:
+
+aMainWindow->aMainWindow: endSession()
+aMainWindow->aSession: calculateSummaryData()
+aMainWindow->aBreathPacerLights: stop()
+
+note over aMainWindow, aSession: Continuing (whether or not a session was running):
+
+aMainWindow->aMainWindow: returnToMenu()
+
+
+aMainWindow->aBattery: stopBattery()
+aBattery->aQTimer: stop()
+deactivate aQTimer
+deactivate aMainWindow
+
+note over aQTimer, aBreathPacerLights: End of sequence for battery drained.
