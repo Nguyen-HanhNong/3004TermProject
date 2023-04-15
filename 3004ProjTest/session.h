@@ -1,3 +1,8 @@
+/* Author: Awwab Mahdi */
+/* File Name: session.h */
+/* Purpose: To serve as the object representation of active and saved sessions, notably allowing them to be stored in an array as session logs */
+
+/* Including all the necessary headers and libraries */
 #include <QString>
 #include <QDateTime>
 #include <QTime>
@@ -12,67 +17,50 @@
 #ifndef SESSION_H
 #define SESSION_H
 
-/* Purpose of Class: To serve as the active object being updated while a session is running
- *
- * Data Members:
- * - int challengeLevel: an integer that represents the challenge level used for the session
- * - double timeAtLow: a double that represents the PERCENTAGE of time at low coherence level
- * - double timeAtMedium: a double that represents the PERCENTAGE of time at medium coherence level
- * - double timeAtHigh: a double that represents the PERCENTAGE of time at high coherence level
- * - double currentCoherence: a double that represents the most recent coherence score(calculated every five seconds)
- * - int length: an integer that represents the length in seconds of the session in seconds
- * - double achievement: a double used to represent the total value of the sum of all coherence scores
- *
- * - Class Functions:
- * - Getters and Setters
- *
- */
-
 class Session: public QWidget {
 
 public:
-    Session(QWidget* = nullptr, int challengeLevel = 1);
-    ~Session();
+    Session(QWidget* = nullptr, int challengeLevel = 1); //Default constructor
+    ~Session(); //Default destructor
 
-    void calculateSummaryData();
-    void update();
+    void calculateSummaryData(); //Function to calculate and store the values of all unevaluated member variables
+    void update(); //Function to update the running session
 
     //getters
-    int getChallengeLevel();
-    double getTimeAtLow();
-    double getTimeAtMedium();
-    double getTimeAtHigh();
-    double getCurrentCoherence();
-    int getLength(); //Seconds
-    double getAchievement();
-    Reader getReader();
+    int getChallengeLevel(); //Getter for challengeLevel
+    int getLength(); //Getter for length
+    double getAchievement(); //Getter for achievement
+    int getSessionID(); //Getter for sessionID
+    double getAverageCoherenceScore(); //Getter for averageCoherenceScore
+    double getPercentageOfHighCoherence(); //Getter for percentageOfHighCoherence
+    double getPercentageOfMediumCoherence(); //Getter for percentageOfMediumCoherence
+    double getPercentageOfLowCoherence(); //Getter for percentageOfLowCoherence
+    QString getDateCreated(); //Getter for timeCreated
+    Reader getReader(); //Getter for reader
 
-    double getAverageCoherenceScore();
-    double getPercentageOfHighCoherence();
-    double getPercentageOfMediumCoherence();
-    double getPercentageOfLowCoherence();
+    double getTimeAtLow(); //Getter for time in low coherence value from reader
+    double getTimeAtMedium(); //Getter for time in medium coherence value from reader
+    double getTimeAtHigh(); //Getter for time in high coherence value from reader
+    double getCurrentCoherence(); //Getter for the latest coherence score from the reader
 
-    QString getCoherenceLevel();
-    QString getDateCreated();
-
-    int getSessionID();
+    QString getCoherenceLevel(); //Function that returns the value of reader.getCoherenceLevel() for the value of challenge level currently being used
 
 private:
-    int challengeLevel;
-    int length;
-    double achievement;
+    int challengeLevel; // An integer that represents the challenge level used for the session
+    int length; // An integer that represents the duration in seconds of the session
+    double achievement; // A double that represents the achievement value, which is the sum of all coherence scores calculated in the session
 
-    static int uniqueSessionID;
-    int sessionID;
+    static int uniqueSessionID; // A static integer that is incremented for each new session
+    int sessionID; // An integer that represents a unique value for each session
 
-    double averageCoherenceScore;
-    double percentageOfHighCoherence;
-    double percentageOfMediumCoherence;
-    double percentageOfLowCoherence;
+    double averageCoherenceScore; // A double that represents the average coherence score obtained over the course of the session
+    double percentageOfHighCoherence; // A double that represents the percentage of the duration of the session spent at high coherence
+    double percentageOfMediumCoherence; // A double that represents the percentage of the duration of the session spent at medium coherence
+    double percentageOfLowCoherence; // A double that represents the percentage of the duration of the session spent at low coherence
 
-    QString timeCreated;
+    QString timeCreated; // A QString object that holds value of the date and time the session was created as a string
 
-    Reader reader;
+    Reader reader; // A reader object(sourced from reader.h) that reads from file and performs calculations for each session
 };
 
 #endif // SESSION_H
