@@ -468,24 +468,18 @@ void MainWindow::startSession(){
 void MainWindow::endSession(){
     *(this->updateSessionGraph) = false; //stop updating the session graph
     activeSession = false;
-    qDebug()<<1;
     //visuals
     ui->mainListView->setVisible(false);
     ui->selectorButtons->setDisabled(true);
     ui->selectButton->setDisabled(false);
     ui->selectButton->setText("Return To Menu");
-    qDebug()<<2;
     ui->menuButton->setDisabled(true);
     ui->backButton->setDisabled(true);
-
     //shows the session data recorded
     ui->sessionScreen->setVisible(true);
     ui->menuLabel->setText("Summary Screen: Session " + QString::number(sessions->at(currentSession)->getSessionID()) + " Ended");
-    qDebug()<<3;
     ui->breathPacerLights->stop();
-    qDebug()<<3.1;
     this->sessions->at(currentSession)->calculateSummaryData();
-    qDebug()<<3.5;
     ui->averageCoherenceScoreLabel->setVisible(true);
     ui->percentHighLabel->setVisible(true);
     ui->percentMediumLabel->setVisible(true);

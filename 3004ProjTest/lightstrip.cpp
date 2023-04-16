@@ -47,6 +47,7 @@ void LightStrip::stop(){
     timer.stop();
     lights[curOn-1]->turnOff();
     curOn = 0;
+    dir = true;
 }
 
 void LightStrip::nextLight(){
