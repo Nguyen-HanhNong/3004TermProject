@@ -1,12 +1,12 @@
-# 3004TermProject
+3004TermProject
 
-## Team members: 
+Team members: 
 - 101221995 Shreya Voore
 - 101220611 Nguyen-Hanh Nong
 - 101232804 Ashok Sivathayalan
 - 101225637 Awwab Mahdi
 
-## Includes:
+Includes:
 
 .
 ├── 3004ProjTest (folder containing the code/implementation of the term project)/
@@ -48,10 +48,10 @@
 │   └── Use_Case_Diagram.png (image of our use case diagram)
 └── README.md (readme file for project)
 
-## Video Link:
+Video Link:
 - https://youtu.be/spAv53TgZIQ
 
-## Contributions:
+Contributions:
 - Shreya Voore:
   - Developed the Menu class used in the application.
   - Created the use case diagram and battery low sequence diagram.
