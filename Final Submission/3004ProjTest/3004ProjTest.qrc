@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>low_coherence_data.txt</file>
+        <file>medium_coherence_data.txt</file>
+        <file>high_coherence_scores.txt</file>
+        <file>low_coherence_scores.txt</file>
+        <file>medium_coherence_scores.txt</file>
+    </qresource>
+</RCC>
