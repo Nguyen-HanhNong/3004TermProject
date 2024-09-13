@@ -1,10 +1,10 @@
 # 3004TermProject
 
 ## Team members: 
-- 101221995 Shreya Voore
-- 101220611 Nguyen-Hanh Nong
-- 101232804 Ashok Sivathayalan
-- 101225637 Awwab Mahdi
+- Shreya Voore
+- Nguyen-Hanh Nong
+- Ashok Sivathayalan
+- Awwab Mahdi
 
 ## Includes:
 
